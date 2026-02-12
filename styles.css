@@ -69,3 +69,11 @@ div.footer{
   color: #0e3b68;
   padding: 10px;
 }
+p{
+  font-size: 25px;
+  color: #ba2933;
+  caption-side: top;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
