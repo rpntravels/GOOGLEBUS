@@ -17,8 +17,7 @@
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             events: '/get-locks', // Automatically fetches locked dates from Flask
-            
-            dateClick: async function(info) {
+                    dateClick: async function(info) {
                 let note = prompt("Enter note to lock this date:");
                 if (note) {
                     const response = await fetch('/lock-date', {
