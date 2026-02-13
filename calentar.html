@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+    <style>
+        #calendar { max-width: 900px; margin: 40px auto; }
+        .locked-cell { background-color: #ffcccc !important; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div id='calendar'></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: '/get-locks', // Automatically fetches locked dates from Flask
+            
+            dateClick: async function(info) {
+                let note = prompt("Enter note to lock this date:");
+                if (note) {
+                    const response = await fetch('/lock-date', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ date: info.dateStr, note: note })
+                    });
+                    
+                    if (response.ok) {
+                        alert("Date Locked!");
+                        calendar.refetchEvents(); // Refresh UI
+                    } else {
+                        alert("This date is already locked!");
+                    }
+                }
+            }
+        });
+        calendar.render();
+    });
+    </script>
+</body>
+</html>
