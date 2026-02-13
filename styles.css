@@ -77,3 +77,15 @@ p{
   font-family: Arial, sans-serif;
   padding: 20px;
 }
+button {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 18px;
+  color: #bdc1d1;
+  background-color: #290f64;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  center: center;
+}
