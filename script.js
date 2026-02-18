@@ -203,7 +203,21 @@ function createDayElement(day, isOtherMonth, isToday = false, year, month) {
             dayEl.appendChild(more);
         }
 
-        dayEl.addEventListener('click', () => openModal(dateStr));
+        dayEl.addEventListener('click', () => {
+            if (dayEvents.length > 0) {
+                // Show existing event(s) - admin can add another
+                if (dayEvents.length === 1) {
+                    // Show single event details in modal (read-only for non-admin)
+                    showEventDetails(dayEvents[0], isAdmin);
+                } else {
+                    // Multiple events - show list
+                    showEventList(dayEvents, dateStr);
+                }
+            } else {
+                // No event - open add event modal
+                openModal(dateStr);
+            }
+        });
     }
 
     return dayEl;
@@ -211,6 +225,15 @@ function createDayElement(day, isOtherMonth, isToday = false, year, month) {
 
 // Open Event Modal
 function openModal(date = '') {
+    // Check if date already has an event
+    if (date) {
+        const existingEvent = events.find(e => e.date === date);
+        if (existingEvent && !isAdmin) {
+            alert('This date already has an event. Only admin can add multiple events on the same date.');
+            return;
+        }
+    }
+    
     document.getElementById('eventId').value = '';
     document.getElementById('purpose').value = '';
     document.getElementById('Name').value = '';
@@ -219,7 +242,153 @@ function openModal(date = '') {
     document.getElementById('Address').value = '';
     document.getElementById('Phone').value = '';
     document.getElementById('Description').value = '';
+    document.getElementById('Document').value = '';
     document.getElementById('modalTitle').textContent = 'Add Event';
+    eventModal.style.display = 'block';
+}
+
+// Show Event Details (when clicking on a day with existing event)
+function showEventDetails(event, isAdminMode) {
+    const eventDate = new Date(event.date).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    let detailsHTML = `
+        <div class="event-details-view">
+            <h4>${escapeHtml(event.name)}</h4>
+            ${event.purpose ? `<p><strong>Purpose:</strong> ${escapeHtml(event.purpose)}</p>` : ''}
+            <p class="event-date">📅 ${eventDate}</p>
+            ${event.time ? `<p>⏰ ${event.time}</p>` : ''}
+            <p>📍 ${escapeHtml(event.address)}</p>
+            <p>📞 ${escapeHtml(event.phone)}</p>
+            ${event.description ? `<p>📝 ${escapeHtml(event.description)}</p>` : ''}
+            ${event.documentName ? `
+                <div class="event-document">
+                    <strong>📎 Document:</strong>
+                    <a href="${event.documentData}" download="${event.documentName}" class="download-link" target="_blank">
+                        📄 ${escapeHtml(event.documentName)}
+                    </a>
+                </div>
+            ` : ''}
+            ${isAdminMode ? `
+                <div class="admin-event-actions">
+                    <button class="edit-event-btn" onclick="editEventFromView('${event.id}')">✏️ Edit</button>
+                    <button class="add-another-btn" onclick="openModal('${event.date}')">➕ Add Another Event</button>
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    // Show in a custom modal or alert
+    const customModal = document.createElement('div');
+    customModal.className = 'modal event-details-modal';
+    customModal.innerHTML = `
+        <div class="modal-content">
+            <span class="close event-details-close">&times;</span>
+            <h2>📋 Event Details</h2>
+            ${detailsHTML}
+            <div class="form-actions">
+                <button type="button" class="cancel-btn close-details-btn">Close</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(customModal);
+    customModal.style.display = 'block';
+    
+    // Close handlers
+    const closeBtn = customModal.querySelector('.event-details-close');
+    const closeDetailsBtn = customModal.querySelector('.close-details-btn');
+    
+    closeBtn.addEventListener('click', () => {
+        customModal.remove();
+    });
+    
+    closeDetailsBtn.addEventListener('click', () => {
+        customModal.remove();
+    });
+    
+    customModal.addEventListener('click', (e) => {
+        if (e.target === customModal) {
+            customModal.remove();
+        }
+    });
+}
+
+// Show Multiple Events List
+function showEventList(dayEvents, dateStr) {
+    const sortedEvents = [...dayEvents].sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    let eventsHTML = sortedEvents.map(event => `
+        <div class="event-card-mini">
+            <h4>${escapeHtml(event.name)}</h4>
+            ${event.purpose ? `<p><strong>Purpose:</strong> ${escapeHtml(event.purpose)}</p>` : ''}
+            ${event.time ? `<p>⏰ ${event.time}</p>` : ''}
+            ${event.description ? `<p>📝 ${escapeHtml(event.description)}</p>` : ''}
+            ${isAdmin ? `<button class="delete-mini-btn" onclick="deleteEvent('${event.id}')">🗑️ Delete</button>` : ''}
+        </div>
+    `).join('');
+    
+    const customModal = document.createElement('div');
+    customModal.className = 'modal event-details-modal';
+    customModal.innerHTML = `
+        <div class="modal-content">
+            <span class="close event-details-close">&times;</span>
+            <h2>📋 Events on ${dateStr}</h2>
+            <div class="events-list-mini">
+                ${eventsHTML}
+            </div>
+            ${isAdmin ? `<button class="add-another-btn" onclick="openModal('${dateStr}')">➕ Add Another Event</button>` : ''}
+            <div class="form-actions">
+                <button type="button" class="cancel-btn close-details-btn">Close</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(customModal);
+    customModal.style.display = 'block';
+    
+    // Close handlers
+    const closeBtn = customModal.querySelector('.event-details-close');
+    const closeDetailsBtn = customModal.querySelector('.close-details-btn');
+    
+    closeBtn.addEventListener('click', () => {
+        customModal.remove();
+    });
+    
+    closeDetailsBtn.addEventListener('click', () => {
+        customModal.remove();
+    });
+    
+    customModal.addEventListener('click', (e) => {
+        if (e.target === customModal) {
+            customModal.remove();
+        }
+    });
+}
+
+// Edit Event from View
+function editEventFromView(eventId) {
+    const event = events.find(e => e.id === eventId);
+    if (!event) return;
+    
+    // Close any open modals
+    document.querySelectorAll('.event-details-modal').forEach(m => m.remove());
+    
+    // Populate form with event data
+    document.getElementById('eventId').value = event.id;
+    document.getElementById('purpose').value = event.purpose || '';
+    document.getElementById('Name').value = event.name || '';
+    document.getElementById('Date').value = event.date || '';
+    document.getElementById('Time').value = event.time || '';
+    document.getElementById('Address').value = event.address || '';
+    document.getElementById('Phone').value = event.phone || '';
+    document.getElementById('Description').value = event.description || '';
+    document.getElementById('Document').value = '';
+    document.getElementById('modalTitle').textContent = 'Edit Event';
     eventModal.style.display = 'block';
 }
 
@@ -260,6 +429,46 @@ function handleFormSubmit(e) {
     e.preventDefault();
 
     const id = document.getElementById('eventId').value;
+    const selectedDate = document.getElementById('Date').value;
+    
+    // Check for duplicate date (only for new events, not updates)
+    if (!id && selectedDate) {
+        const existingEvent = events.find(e => e.date === selectedDate);
+        if (existingEvent && !isAdmin) {
+            alert('An event already exists on this date. Only admin can add multiple events on the same date.');
+            return;
+        }
+    }
+    
+    // Handle file upload
+    const fileInput = document.getElementById('Document');
+    let fileName = '';
+    let fileData = '';
+    
+    if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        
+        if (file.size > maxSize) {
+            alert('File size should be less than 5MB');
+            return;
+        }
+        
+        fileName = file.name;
+        // Convert file to base64 for localStorage storage
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            fileData = event.target.result;
+            saveEvent(id, fileData, fileName);
+        };
+        reader.readAsDataURL(file);
+    } else {
+        saveEvent(id, '', '');
+    }
+}
+
+// Save Event (helper function)
+function saveEvent(id, fileData, fileName) {
     const event = {
         id: id || Date.now().toString(),
         name: document.getElementById('Name').value,
@@ -268,7 +477,9 @@ function handleFormSubmit(e) {
         time: document.getElementById('Time').value,
         address: document.getElementById('Address').value,
         phone: document.getElementById('Phone').value,
-        description: document.getElementById('Description').value
+        description: document.getElementById('Description').value,
+        documentName: fileName,
+        documentData: fileData
     };
 
     if (id) {
@@ -320,6 +531,14 @@ function renderEvents() {
                 <p>📍 ${escapeHtml(event.address)}</p>
                 <p>📞 ${escapeHtml(event.phone)}</p>
                 ${event.description ? `<p>📝 ${escapeHtml(event.description)}</p>` : ''}
+                ${event.documentName ? `
+                    <div class="event-document">
+                        <strong>📎 Document:</strong>
+                        <a href="${event.documentData}" download="${event.documentName}" class="download-link" target="_blank">
+                            📄 ${escapeHtml(event.documentName)}
+                        </a>
+                    </div>
+                ` : ''}
             </div>
         `;
     }).join('');
@@ -467,3 +686,4 @@ function copyUPI() {
 // Make payment functions available globally
 window.payWithUPI = payWithUPI;
 window.copyUPI = copyUPI;
+window.editEventFromView = editEventFromView;

@@ -678,6 +678,153 @@ body {
     display: block;
 }
 
+/* Event Document */
+.event-document {
+    margin-top: 15px;
+    padding: 10px;
+    background: #f5f7fa;
+    border-radius: 8px;
+    border-left: 3px solid #667eea;
+}
+
+.event-document strong {
+    color: #333;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.download-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #667eea;
+    text-decoration: none;
+    padding: 8px 15px;
+    background: white;
+    border-radius: 5px;
+    border: 1px solid #667eea;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.download-link:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* Event Details Modal */
+.event-details-modal .modal-content {
+    max-width: 550px;
+}
+
+.event-details-view {
+    padding: 10px 0;
+}
+
+.event-details-view h4 {
+    color: #333;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 10px;
+}
+
+.event-details-view p {
+    margin: 10px 0;
+    color: #555;
+    font-size: 1rem;
+}
+
+.admin-event-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #eee;
+}
+
+.edit-event-btn {
+    flex: 1;
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.edit-event-btn:hover {
+    background: #764ba2;
+    transform: translateY(-2px);
+}
+
+.add-another-btn {
+    flex: 1;
+    background: #34a853;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.add-another-btn:hover {
+    background: #2d8e44;
+    transform: translateY(-2px);
+}
+
+/* Mini Event Card for Multiple Events */
+.events-list-mini {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+    margin: 15px 0;
+}
+
+.event-card-mini {
+    background: #f9f9f9;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+    position: relative;
+}
+
+.event-card-mini h4 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.event-card-mini p {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 5px 0;
+}
+
+.delete-mini-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.delete-mini-btn:hover {
+    background: #d32f2f;
+}
+
 /* ========================================
    MODAL STYLES
    ======================================== */
@@ -758,6 +905,26 @@ body {
     border-radius: 8px;
     font-size: 1rem;
     transition: border-color 0.3s ease;
+}
+
+.form-group input[type="file"] {
+    padding: 10px;
+    border: 2px dashed #ddd;
+    background: #f9f9f9;
+    cursor: pointer;
+}
+
+.form-group input[type="file"]:hover {
+    border-color: #667eea;
+    background: #f0f0ff;
+}
+
+.form-hint {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-top: 5px;
+    font-style: italic;
 }
 
 .form-group input:focus,
