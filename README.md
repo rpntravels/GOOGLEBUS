@@ -9,6 +9,7 @@ A combined website for RPN Travels bus booking services with an integrated event
 - 📋 Services information (Marriage, College Tour, Family Function, etc.)
 - ✨ Feature highlights (Reliable Services, Affordable Prices, Safety First, Customer Satisfaction)
 - 📞 Contact information
+- 💳 **UPI Payment Integration** (Google Pay, PhonePe, PayTM)
 
 ### Event Calendar Section
 - 📅 Interactive monthly calendar view
@@ -76,6 +77,19 @@ GOOGLEBUS/
 - Contact for bookings via phone or email
 - Navigate to calendar for event management
 
+### UPI Payment Section
+1. **Select Payment Method**: Click on Google Pay, PhonePe, or PayTM button
+2. **Enter Payment Details**:
+   - Amount (₹)
+   - Your Name
+   - Payment Purpose (Marriage Booking, College Tour, etc.)
+   - Phone Number
+3. **Complete Payment**:
+   - Click "Proceed to Pay"
+   - Click "Open UPI App" to open your selected UPI app
+   - Or scan the QR code with any UPI app
+4. **Copy UPI ID**: Click the copy button to copy UPI ID for manual payment
+
 ### Calendar Section
 1. **Add Event**: Click the "+ Add Event" button or click on any calendar date
 2. **View Events**: All events are displayed in the events section below the calendar
@@ -84,14 +98,33 @@ GOOGLEBUS/
 
 ## Data Storage
 
-Events are stored in your browser's **localStorage**, so they persist even after closing the browser.
+Events and payment records are stored in your browser's **localStorage**, so they persist even after closing the browser.
 
 ## Customization
 
+### UPI Payment Setup (IMPORTANT!)
+1. Open `script.js`
+2. Find the `UPI_CONFIG` section at the top (around line 6)
+3. Update your UPI ID:
+   ```javascript
+   const UPI_CONFIG = {
+       upiId: '9842422929@oksbi',  // Replace with your actual UPI ID
+       name: 'RPN Travels',
+       defaultNote: 'Bus booking payment'
+   };
+   ```
+4. Common UPI ID formats:
+   - PhonePe: `9842422929@phonepe`
+   - Google Pay: `9842422929@oksbi` or `9842422929@okhdfcbank`
+   - PayTM: `9842422929@paytm`
+   - BHIM: `9842422929@upi`
+
+### Other Customization
 - **Admin Password**: Change in `script.js` (search for `admin123`)
 - **Colors**: Modify CSS variables in `styles.css`
 - **Contact Info**: Edit in `index.html` (contact-section)
 - **Bus Images**: Update image paths in `index.html` (bus-gallery)
+- **QR Code**: Replace the QR placeholder in `index.html` with your actual UPI QR code image
 
 ## Services Offered
 

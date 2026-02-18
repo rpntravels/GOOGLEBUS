@@ -40,8 +40,107 @@
                 <button id="calendarBtn" class="nav-btn">View Event Calendar</button>
                 <p class="call-text">Call us for bookings and inquiries!</p>
             </div>
+
+            <!-- Payment Section -->
+            <div class="payment-section">
+                <h3>💳 Make Payment</h3>
+                <p class="payment-desc">Pay securely using UPI (Google Pay, PhonePe, PayTM, etc.)</p>
+                
+                <div class="payment-methods">
+                    <button onclick="payWithUPI('gpay')" class="payment-btn gpay-btn">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Pay_Logo_%282020%29.svg" alt="Google Pay">
+                        Pay with Google Pay
+                    </button>
+                    
+                    <button onclick="payWithUPI('phonepe')" class="payment-btn phonepe-btn">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/PhonePe_Logo.svg" alt="PhonePe">
+                        Pay with PhonePe
+                    </button>
+                    
+                    <button onclick="payWithUPI('paytm')" class="payment-btn paytm-btn">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/f/fe/Paytm_logo.png" alt="PayTM">
+                        Pay with PayTM
+                    </button>
+                </div>
+
+                <div class="upi-qr-section">
+                    <h4>📱 Scan QR Code to Pay</h4>
+                    <p class="payment-desc">Scan with any UPI app (Google Pay, PhonePe, PayTM, BHIM, etc.)</p>
+                    
+                    <div class="qr-files-display">
+                        <div class="qr-card">
+                            <img src="qr code.jpeg" alt="UPI QR Code" class="qr-code-img">
+                            <p class="qr-label">RPN Travels UPI Payment</p>
+                        </div>
+                    </div>
+                    
+                    <p class="qr-instructions">
+                        <strong>How to pay:</strong><br>
+                        1. Open any UPI app<br>
+                        2. Scan the QR code above<br>
+                        3. Enter amount and complete payment
+                    </p>
+                </div>
+
+                <div class="upi-id-section">
+                    <p><strong>UPI ID:</strong> <span id="upiId">your-uppi-id@oksbi</span></p>
+                    <button onclick="copyUPI()" class="copy-btn">📋 Copy UPI ID</button>
+                </div>
+            </div>
         </div>
     </section>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content payment-modal-content">
+            <span class="close payment-close">&times;</span>
+            <h2>💰 Enter Payment Details</h2>
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label for="paymentAmount">Amount (₹) *</label>
+                    <input type="number" id="paymentAmount" required placeholder="Enter amount" min="1">
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentName">Your Name *</label>
+                    <input type="text" id="paymentName" required placeholder="Enter your name">
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentPurpose">Payment Purpose *</label>
+                    <select id="paymentPurpose" required>
+                        <option value="">Select purpose</option>
+                        <option value="Marriage Booking">Marriage Booking</option>
+                        <option value="College Tour">College Tour</option>
+                        <option value="Family Function">Family Function</option>
+                        <option value="Navagraham Tour">Navagraham Tour</option>
+                        <option value="Kovil Tour">Kovil Tour</option>
+                        <option value="Thirupathi Tour">Thirupathi Tour</option>
+                        <option value="Arupadai Tour">Arupadai Tour</option>
+                        <option value="Sabarimalai Tour">Sabarimalai Tour</option>
+                        <option value="Advance Payment">Advance Payment</option>
+                        <option value="Full Payment">Full Payment</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentPhone">Phone Number *</label>
+                    <input type="tel" id="paymentPhone" required placeholder="Enter phone number" pattern="[0-9]{10}">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn pay-now-btn">Proceed to Pay</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+
+            <div id="upiPaymentLink" class="upi-link-section hidden">
+                <p>Click below to open your UPI app:</p>
+                <a id="upiLink" href="#" class="upi-link-btn" target="_blank">🔗 Open UPI App</a>
+                <p class="upi-note">Or use any UPI app to scan the QR code</p>
+            </div>
+        </div>
+    </div>
 
     <!-- Event Calendar Section -->
     <section id="calendar-section" class="hidden">

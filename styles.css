@@ -162,6 +162,272 @@ body {
 }
 
 /* ========================================
+   PAYMENT SECTION STYLES
+   ======================================== */
+.payment-section {
+    text-align: center;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 10px;
+    margin: 20px;
+}
+
+.payment-section h3 {
+    text-align: center;
+    color: #1a73e8;
+    font-size: 32px;
+    font-family: Arial, sans-serif;
+    margin-bottom: 10px;
+}
+
+.payment-desc {
+    font-size: 18px;
+    color: #555;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.payment-methods {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.payment-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.payment-btn img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+.gpay-btn {
+    background: #4285f4;
+    color: white;
+}
+
+.gpay-btn:hover {
+    background: #3367d6;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(66, 133, 244, 0.3);
+}
+
+.phonepe-btn {
+    background: #5f259f;
+    color: white;
+}
+
+.phonepe-btn:hover {
+    background: #4a1c7a;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(95, 37, 159, 0.3);
+}
+
+.paytm-btn {
+    background: #00b9f5;
+    color: white;
+}
+
+.paytm-btn:hover {
+    background: #0099cc;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 185, 245, 0.3);
+}
+
+.upi-qr-section {
+    margin: 30px 0;
+    padding: 25px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e3e7ed 100%);
+    border-radius: 15px;
+}
+
+.upi-qr-section h4 {
+    font-size: 24px;
+    color: #1a73e8;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.upi-qr-section p.payment-desc {
+    font-size: 16px;
+    color: #555;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.qr-files-display {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.qr-card {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.qr-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.qr-container {
+    width: 220px;
+    height: 220px;
+    margin: 0 auto;
+    background: white;
+    border: 3px solid #1a73e8;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.qr-code-img {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    display: block;
+}
+
+.qr-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 2px solid #1a73e8;
+}
+
+.qr-instructions {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    font-size: 16px;
+    color: #555;
+    line-height: 1.8;
+    border-left: 4px solid #34a853;
+}
+
+.qr-instructions strong {
+    color: #1a73e8;
+    font-size: 18px;
+}
+
+.upi-id-section {
+    margin: 20px 0;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.upi-id-section p {
+    font-size: 18px;
+    color: #333;
+    margin: 10px 0;
+}
+
+.upi-id-section span {
+    color: #1a73e8;
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 20px;
+}
+
+.copy-btn {
+    background: #34a853;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.copy-btn:hover {
+    background: #2d8e44;
+    transform: scale(1.05);
+}
+
+/* Payment Modal */
+.payment-modal-content {
+    max-width: 500px;
+}
+
+.upi-link-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: #e8f5e9;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.upi-link-section.hidden {
+    display: none;
+}
+
+.upi-link-btn {
+    display: inline-block;
+    background: #1a73e8;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 15px 0;
+    transition: all 0.3s ease;
+}
+
+.upi-link-btn:hover {
+    background: #1557b0;
+    transform: scale(1.05);
+}
+
+.upi-note {
+    font-size: 14px;
+    color: #666;
+    margin-top: 10px;
+}
+
+.pay-now-btn {
+    background: #34a853 !important;
+}
+
+.pay-now-btn:hover {
+    background: #2d8e44 !important;
+}
+
+/* ========================================
    CALENDAR SECTION STYLES
    ======================================== */
 #calendar-section {

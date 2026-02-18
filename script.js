@@ -3,6 +3,13 @@ let currentDate = new Date();
 let events = [];
 let isAdmin = false;
 
+// UPI Payment Configuration - UPDATE THESE WITH YOUR DETAILS
+const UPI_CONFIG = {
+    upiId: 'ramagencycsc@okaxis',  // Replace with your actual UPI ID (e.g., 9842422929@oksbi)
+    name: 'RPN Travels',
+    defaultNote: 'Bus booking payment'
+};
+
 // DOM Elements
 const daysGrid = document.getElementById('daysGrid');
 const currentMonthEl = document.getElementById('currentMonth');
@@ -24,6 +31,13 @@ const homeBtn = document.getElementById('homeBtn');
 const travelsSection = document.getElementById('travels-section');
 const calendarSection = document.getElementById('calendar-section');
 
+// Payment Elements
+const paymentModal = document.getElementById('paymentModal');
+const paymentForm = document.getElementById('paymentForm');
+const paymentCloseBtns = document.querySelectorAll('.payment-close');
+const upiPaymentLink = document.getElementById('upiPaymentLink');
+const upiLink = document.getElementById('upiLink');
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     loadEvents();
@@ -31,6 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderEvents();
     setupEventListeners();
     setupNavigation();
+    setupPayment();
+    displayUPIId();
 });
 
 // Load events from localStorage
@@ -333,3 +349,121 @@ function escapeHtml(text) {
 
 // Make deleteEvent available globally
 window.deleteEvent = deleteEvent;
+
+// ========================================
+// UPI PAYMENT FUNCTIONS
+// ========================================
+
+// Setup Payment
+function setupPayment() {
+    // Payment modal close buttons
+    paymentCloseBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            paymentModal.style.display = 'none';
+            upiPaymentLink.classList.add('hidden');
+        });
+    });
+
+    // Payment form submit
+    if (paymentForm) {
+        paymentForm.addEventListener('submit', handlePaymentSubmit);
+    }
+
+    // Cancel button in payment modal
+    const paymentCancelBtns = document.querySelectorAll('#paymentModal .cancel-btn');
+    paymentCancelBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            paymentModal.style.display = 'none';
+            upiPaymentLink.classList.add('hidden');
+        });
+    });
+
+    // Close modal on outside click
+    window.addEventListener('click', (e) => {
+        if (e.target === paymentModal) {
+            paymentModal.style.display = 'none';
+            upiPaymentLink.classList.add('hidden');
+        }
+    });
+}
+
+// Display UPI ID
+function displayUPIId() {
+    const upiIdElement = document.getElementById('upiId');
+    if (upiIdElement) {
+        upiIdElement.textContent = UPI_CONFIG.upiId;
+    }
+}
+
+// Pay with UPI app
+function payWithUPI(app) {
+    if (paymentModal) {
+        paymentForm.reset();
+        upiPaymentLink.classList.add('hidden');
+        paymentModal.style.display = 'block';
+    }
+}
+
+// Handle Payment Form Submit
+function handlePaymentSubmit(e) {
+    e.preventDefault();
+
+    const amount = document.getElementById('paymentAmount').value;
+    const name = document.getElementById('paymentName').value;
+    const purpose = document.getElementById('paymentPurpose').value;
+    const phone = document.getElementById('paymentPhone').value;
+
+    // Generate UPI payment link
+    const upiUrl = generateUPILink(amount, name, purpose);
+
+    // Show payment link section
+    upiLink.href = upiUrl;
+    upiPaymentLink.classList.remove('hidden');
+
+    // Save payment details to localStorage (for admin tracking)
+    savePaymentDetails(amount, name, purpose, phone);
+
+    alert('Click "Open UPI App" to complete payment or scan the QR code with any UPI app.');
+}
+
+// Generate UPI Payment Link
+function generateUPILink(amount, name, purpose) {
+    const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_CONFIG.upiId)}&pn=${encodeURIComponent(UPI_CONFIG.name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(purpose + ' - ' + name)}`;
+    return upiUrl;
+}
+
+// Save Payment Details to localStorage
+function savePaymentDetails(amount, name, purpose, phone) {
+    const payments = JSON.parse(localStorage.getItem('rpnPayments') || '[]');
+    payments.push({
+        id: Date.now().toString(),
+        amount: amount,
+        name: name,
+        purpose: purpose,
+        phone: phone,
+        date: new Date().toISOString(),
+        status: 'Pending'
+    });
+    localStorage.setItem('rpnPayments', JSON.stringify(payments));
+}
+
+// Copy UPI ID
+function copyUPI() {
+    const upiId = UPI_CONFIG.upiId;
+    navigator.clipboard.writeText(upiId).then(() => {
+        alert('UPI ID copied to clipboard!');
+    }).catch(err => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = upiId;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('UPI ID copied to clipboard!');
+    });
+}
+
+// Make payment functions available globally
+window.payWithUPI = payWithUPI;
+window.copyUPI = copyUPI;
