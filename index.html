@@ -3,48 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Bus</title>
+    <title>RPN Travels - Google Bus</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="bus photo front.jpg">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-        <link rel="stylesheet" href="bus photo side 1.jpg">
-        <link rel="stylesheet" href="bus photo side.jpg">
-
-
 </head>
 <body>
-    <!DOCTYPE html>
-<html>
+    <!-- RPN Travels Section -->
+    <section id="travels-section">
+        <div class="container">
+            <header class="travels-header">
+                <h1>GOOGLE BUS</h1>
+                <h2>RPN TRAVELS</h2>
+            </header>
+
+            <div class="bus-gallery">
+                <img src="bus photo front.jpg" alt="Front of the bus">
+                <img src="bus photo side 1.jpg" alt="Side of the bus">
+                <img src="bus photo side copy.jpg" alt="Side right of the bus">
+            </div>
+
+            <div class="about-section">
+                <p>Since 1973 we have been providing reliable transportation services. Legacy transport operations over last 52 years</p>
+                <p>TOURIST BUS BOOKING FOR MARRIAGE, COLLEGE TOUR, FAMILY FUNCTION, NAVAGRAHAM TOUR, KOVIL TOUR, THIRUPATHI TOUR, ARUPADAI TOUR, SABARIMALAI TOUR</p>
+            </div>
+
+            <div class="features-section">
+                <div class="box">1. Reliable Services</div>
+                <div class="box">2. Affordable Prices</div>
+                <div class="box">3. Safety First</div>
+                <div class="box">4. Customer Satisfaction</div>
+            </div>
+
+            <div class="contact-section">
+                <h3>Contact Us</h3>
+                <p>Phone: 9842422929, 8072560787</p>
+                <p>Email: rpntravels@gmail.com, rpntravels@yahoo.com</p>
+                <button id="calendarBtn" class="nav-btn">View Event Calendar</button>
+                <p class="call-text">Call us for bookings and inquiries!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Event Calendar Section -->
+    <section id="calendar-section" class="hidden">
+        <div class="container">
+            <header class="calendar-header-main">
+                <h1>📅 Event Calendar</h1>
+                <div class="header-buttons">
+                    <button id="homeBtn" class="home-btn">🏠 Home</button>
+                    <button id="adminBtn" class="admin-btn">Admin Login</button>
+                </div>
+            </header>
+
+            <div class="calendar-wrapper">
+                <div class="calendar-header">
+                    <button id="prevMonth">&lt;</button>
+                    <h2 id="currentMonth"></h2>
+                    <button id="nextMonth">&gt;</button>
+                </div>
+
+                <div class="calendar-grid">
+                    <div class="weekday">Sun</div>
+                    <div class="weekday">Mon</div>
+                    <div class="weekday">Tue</div>
+                    <div class="weekday">Wed</div>
+                    <div class="weekday">Thu</div>
+                    <div class="weekday">Fri</div>
+                    <div class="weekday">Sat</div>
+                </div>
+
+                <div class="days-grid" id="daysGrid"></div>
+            </div>
+
+            <div class="events-section">
+                <h3>📝 Events</h3>
+                <button id="addEventBtn" class="add-event-btn">+ Add Event</button>
+                <div id="eventsList" class="events-list"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Event Form Modal -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">Add Event</h2>
+            <form id="eventForm">
+                <input type="hidden" id="eventId">
+                <div class="form-group">
+                    <label for="purpose">Purpose *</label>
+                    <input type="text" id="purpose" required placeholder="Purpose of visit">
+                </div>
+
+                <div class="form-group">
+                    <label for="Name">Name *</label>
+                    <input type="text" id="Name" required placeholder="Enter name">
+                </div>
+
+                <div class="form-group">
+                    <label for="Date">Date *</label>
+                    <input type="date" id="Date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="Time">Time</label>
+                    <input type="time" id="Time" placeholder="Select time">
+                </div>
+
+                <div class="form-group">
+                    <label for="Address">Address *</label>
+                    <input type="text" id="Address" required placeholder="Enter address">
+                </div>
+
+                <div class="form-group">
+                    <label for="Phone">Phone Number *</label>
+                    <input type="tel" id="Phone" required placeholder="Enter contact phone">
+                </div>
+
+                <div class="form-group">
+                    <label for="Description">Description</label>
+                    <textarea id="Description" rows="4" placeholder="Enter description"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Save Event</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content admin-modal">
+            <span class="close admin-close">&times;</span>
+            <h2>🔐 Admin Login</h2>
+            <form id="adminForm">
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" required placeholder="Enter admin password">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Login</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
 </html>
-    <h1>GOOGLE BUS</h1>
-    <H2>RPN TRAVELS</H2>
-    
-    <img src="bus photo front.jpg" alt="Front of the bus">
-    <img src="bus photo side 1.jpg" alt="Side of the bus">
-    <img src="bus photo side.jpg" alt="Side right of the bus">
-    <img src="bus seat.jpg" alt="bus seat">
-
-   
-    <p>since 1973 we have been providing reliable transportation services.legacy transport operations over last 52 years</p>
-    <p>TOURIST BUS BOOKING FOR MARRIAGE,COLLEGE TOUR,FAMILY FUNCTION,NAVAGRAHAM TOUR,KOVIL TOUR,THIRUPATHI TOUR,ARUPADAI TOUR,SABARIMALAI TOUR</p>
-    <div class="box">1.reliable services</div>
-    <div class="box">2.affordable prices</div>
-    <div class="box">3.safety first</div>
-    <div class="box">4.customer satisfaction</div>
-    <DIV>
-    <H3>Contact Us</H3>
-    <p>Phone:9842422929,8072560787</p>
-    <p>Email: rpntravels@gmail.com,rpntravels@yahoo.com</p>
-    <button onclick="window.location.href='calendar.html'">
-  Open Calendar 1299
-</button>
-<link rel="redbus" href="https://www.redbus.in/">
-    </DIV>
-    <P>call us for bookings and inquiries!</P>
-    </body>
-    </html>
-
-
-
-
-

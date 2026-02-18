@@ -1,0 +1,5 @@
+{
+  "events": [],
+  "adminPassword": "admin123",
+  "note": "Events are stored in localStorage. This file serves as a backup reference."
+}
