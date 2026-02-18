@@ -227,7 +227,7 @@ function handleAdminLogin(e) {
     const password = document.getElementById('adminPassword').value;
 
     // Simple admin password (in production, use proper authentication)
-    if (password === 'admin123') {
+    if (password === 'Pathu123') {
         isAdmin = true;
         adminBtn.textContent = 'Logout';
         adminBtn.classList.add('logged-in');
