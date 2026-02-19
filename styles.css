@@ -977,6 +977,63 @@ body {
 }
 
 /* ========================================
+   BOOKED INDICATOR STYLES
+   ======================================== */
+.booked-indicator {
+    background: #ff6b6b !important;
+    font-weight: bold;
+    font-size: 0.75rem;
+}
+
+.admin-indicator {
+    background: #667eea !important;
+    font-size: 0.65rem;
+}
+
+.booked-message {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 5px;
+    color: #856404;
+    font-weight: 500;
+}
+
+.booked-message-large {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #ff6b6b;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.booked-submessage {
+    color: #888;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.booked-message-container {
+    padding: 30px;
+    text-align: center;
+    background: #f9f9f9;
+    border-radius: 10px;
+    margin: 15px 0;
+}
+
+.booked-card {
+    border-left: 4px solid #ff6b6b !important;
+    background: #fff5f5 !important;
+}
+
+.booked-card h4 {
+    color: #ff6b6b !important;
+    font-weight: bold;
+}
+
+/* ========================================
    RESPONSIVE DESIGN
    ======================================== */
 @media (max-width: 768px) {

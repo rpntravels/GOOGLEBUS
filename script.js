@@ -189,28 +189,37 @@ function createDayElement(day, isOtherMonth, isToday = false, year, month) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const dayEvents = events.filter(e => e.date === dateStr);
 
-        dayEvents.slice(0, 3).forEach(event => {
-            const indicator = document.createElement('div');
-            indicator.className = 'event-indicator';
-            indicator.textContent = event.name;
-            dayEl.appendChild(indicator);
-        });
+        if (dayEvents.length > 0) {
+            // Show booked indicator for all users
+            const bookedIndicator = document.createElement('div');
+            bookedIndicator.className = 'event-indicator booked-indicator';
+            bookedIndicator.textContent = 'Booked';
+            dayEl.appendChild(bookedIndicator);
 
-        if (dayEvents.length > 3) {
-            const more = document.createElement('div');
-            more.className = 'event-indicator';
-            more.textContent = `+${dayEvents.length - 3} more`;
-            dayEl.appendChild(more);
+            // Only show event details to admin
+            if (isAdmin) {
+                dayEvents.slice(0, 2).forEach(event => {
+                    const detailIndicator = document.createElement('div');
+                    detailIndicator.className = 'event-indicator admin-indicator';
+                    detailIndicator.textContent = event.name;
+                    dayEl.appendChild(detailIndicator);
+                });
+
+                if (dayEvents.length > 2) {
+                    const more = document.createElement('div');
+                    more.className = 'event-indicator admin-indicator';
+                    more.textContent = `+${dayEvents.length - 2} more`;
+                    dayEl.appendChild(more);
+                }
+            }
         }
 
         dayEl.addEventListener('click', () => {
             if (dayEvents.length > 0) {
-                // Show existing event(s) - admin can add another
+                // Show existing event(s) - admin sees details, others see "Booked"
                 if (dayEvents.length === 1) {
-                    // Show single event details in modal (read-only for non-admin)
                     showEventDetails(dayEvents[0], isAdmin);
                 } else {
-                    // Multiple events - show list
                     showEventList(dayEvents, dateStr);
                 }
             } else {
@@ -255,23 +264,26 @@ function showEventDetails(event, isAdminMode) {
         month: 'long',
         day: 'numeric'
     });
-    
+
     let detailsHTML = `
         <div class="event-details-view">
-            <h4>${escapeHtml(event.name)}</h4>
-            ${event.purpose ? `<p><strong>Purpose:</strong> ${escapeHtml(event.purpose)}</p>` : ''}
+            <h4>${isAdminMode ? escapeHtml(event.name) : '📅 Booked'}</h4>
+            ${isAdminMode && event.purpose ? `<p><strong>Purpose:</strong> ${escapeHtml(event.purpose)}</p>` : ''}
             <p class="event-date">📅 ${eventDate}</p>
-            ${event.time ? `<p>⏰ ${event.time}</p>` : ''}
-            <p>📍 ${escapeHtml(event.address)}</p>
-            <p>📞 ${escapeHtml(event.phone)}</p>
-            ${event.description ? `<p>📝 ${escapeHtml(event.description)}</p>` : ''}
-            ${event.documentName ? `
+            ${isAdminMode && event.time ? `<p>⏰ ${event.time}</p>` : ''}
+            ${isAdminMode ? `<p>📍 ${escapeHtml(event.address)}</p>` : ''}
+            ${isAdminMode ? `<p>📞 ${escapeHtml(event.phone)}</p>` : ''}
+            ${isAdminMode && event.description ? `<p>📝 ${escapeHtml(event.description)}</p>` : ''}
+            ${isAdminMode && event.documentName ? `
                 <div class="event-document">
                     <strong>📎 Document:</strong>
                     <a href="${event.documentData}" download="${event.documentName}" class="download-link" target="_blank">
                         📄 ${escapeHtml(event.documentName)}
                     </a>
                 </div>
+            ` : ''}
+            ${!isAdminMode ? `
+                <p class="booked-message">This date is already booked. Please select another date.</p>
             ` : ''}
             ${isAdminMode ? `
                 <div class="admin-event-actions">
@@ -321,17 +333,30 @@ function showEventDetails(event, isAdminMode) {
 // Show Multiple Events List
 function showEventList(dayEvents, dateStr) {
     const sortedEvents = [...dayEvents].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    let eventsHTML = '';
     
-    let eventsHTML = sortedEvents.map(event => `
-        <div class="event-card-mini">
-            <h4>${escapeHtml(event.name)}</h4>
-            ${event.purpose ? `<p><strong>Purpose:</strong> ${escapeHtml(event.purpose)}</p>` : ''}
-            ${event.time ? `<p>⏰ ${event.time}</p>` : ''}
-            ${event.description ? `<p>📝 ${escapeHtml(event.description)}</p>` : ''}
-            ${isAdmin ? `<button class="delete-mini-btn" onclick="deleteEvent('${event.id}')">🗑️ Delete</button>` : ''}
-        </div>
-    `).join('');
-    
+    if (isAdmin) {
+        // Admin sees all event details
+        eventsHTML = sortedEvents.map(event => `
+            <div class="event-card-mini">
+                <h4>${escapeHtml(event.name)}</h4>
+                ${event.purpose ? `<p><strong>Purpose:</strong> ${escapeHtml(event.purpose)}</p>` : ''}
+                ${event.time ? `<p>⏰ ${event.time}</p>` : ''}
+                ${event.description ? `<p>📝 ${escapeHtml(event.description)}</p>` : ''}
+                ${isAdmin ? `<button class="delete-mini-btn" onclick="deleteEvent('${event.id}')">🗑️ Delete</button>` : ''}
+            </div>
+        `).join('');
+    } else {
+        // Non-admin users only see "Booked" message
+        eventsHTML = `
+            <div class="booked-message-container">
+                <p class="booked-message-large">📅 This date is booked</p>
+                <p class="booked-submessage">Multiple events are scheduled on this date. Please select another date.</p>
+            </div>
+        `;
+    }
+
     const customModal = document.createElement('div');
     customModal.className = 'modal event-details-modal';
     customModal.innerHTML = `
@@ -502,7 +527,7 @@ function saveEvent(id, fileData, fileName) {
 // Render Events List
 function renderEvents() {
     if (!eventsList) return;
-    
+
     if (events.length === 0) {
         eventsList.innerHTML = '<p class="no-events">No events scheduled. Click "Add Event" to create one!</p>';
         return;
@@ -511,37 +536,58 @@ function renderEvents() {
     // Sort events by date
     const sortedEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    eventsList.innerHTML = sortedEvents.map(event => {
-        const eventDate = new Date(event.date).toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+    if (isAdmin) {
+        // Admin sees all event details
+        eventsList.innerHTML = sortedEvents.map(event => {
+            const eventDate = new Date(event.date).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
 
-        return `
-            <div class="event-card">
-                <button class="delete-btn ${isAdmin ? 'visible' : ''}" onclick="deleteEvent('${event.id}')">
-                    🗑️ Delete
-                </button>
-                <h4>${escapeHtml(event.name)}</h4>
-                ${event.purpose ? `<p><strong>Purpose:</strong> ${escapeHtml(event.purpose)}</p>` : ''}
-                <p class="event-date">📅 ${eventDate}</p>
-                ${event.time ? `<p>⏰ ${event.time}</p>` : ''}
-                <p>📍 ${escapeHtml(event.address)}</p>
-                <p>📞 ${escapeHtml(event.phone)}</p>
-                ${event.description ? `<p>📝 ${escapeHtml(event.description)}</p>` : ''}
-                ${event.documentName ? `
-                    <div class="event-document">
-                        <strong>📎 Document:</strong>
-                        <a href="${event.documentData}" download="${event.documentName}" class="download-link" target="_blank">
-                            📄 ${escapeHtml(event.documentName)}
-                        </a>
-                    </div>
-                ` : ''}
-            </div>
-        `;
-    }).join('');
+            return `
+                <div class="event-card">
+                    <button class="delete-btn ${isAdmin ? 'visible' : ''}" onclick="deleteEvent('${event.id}')">
+                        🗑️ Delete
+                    </button>
+                    <h4>${escapeHtml(event.name)}</h4>
+                    ${event.purpose ? `<p><strong>Purpose:</strong> ${escapeHtml(event.purpose)}</p>` : ''}
+                    <p class="event-date">📅 ${eventDate}</p>
+                    ${event.time ? `<p>⏰ ${event.time}</p>` : ''}
+                    <p>📍 ${escapeHtml(event.address)}</p>
+                    <p>📞 ${escapeHtml(event.phone)}</p>
+                    ${event.description ? `<p>📝 ${escapeHtml(event.description)}</p>` : ''}
+                    ${event.documentName ? `
+                        <div class="event-document">
+                            <strong>📎 Document:</strong>
+                            <a href="${event.documentData}" download="${event.documentName}" class="download-link" target="_blank">
+                                📄 ${escapeHtml(event.documentName)}
+                            </a>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+    } else {
+        // Non-admin users only see booked dates without details
+        eventsList.innerHTML = sortedEvents.map(event => {
+            const eventDate = new Date(event.date).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            return `
+                <div class="event-card booked-card">
+                    <h4>📅 Booked</h4>
+                    <p class="event-date">📅 ${eventDate}</p>
+                    <p class="booked-submessage">Contact admin for details</p>
+                </div>
+            `;
+        }).join('');
+    }
 }
 
 // Delete Event (Admin only)
