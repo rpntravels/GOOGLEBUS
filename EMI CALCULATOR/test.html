@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 8px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>EMI Calculator - Function Test</h1>
+    
+    <div class="test-section">
+        <h2>Script Loading Status</h2>
+        <div id="status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Buttons</h2>
+        <button onclick="testEMI()">Test EMI</button>
+        <button onclick="testCalc()">Test Calculator</button>
+        <button onclick="testInterest()">Test Interest</button>
+        <button onclick="testSchedule()">Test Schedule</button>
+        <div id="result" style="margin-top:10px;"></div>
+    </div>
+
+    <script>
+        var results = [];
+        
+        // Check functions
+        if (typeof calculateEMI === 'function') results.push('OK: EMI Calculator');
+        else results.push('FAIL: EMI Calculator');
+        
+        if (typeof calcDigit === 'function') results.push('OK: Ordinary Calculator');
+        else results.push('FAIL: Ordinary Calculator');
+        
+        if (typeof calculateInterest === 'function') results.push('OK: Interest Calculator');
+        else results.push('FAIL: Interest Calculator');
+        
+        if (typeof generateSchedule === 'function') results.push('OK: Schedule Generator');
+        else results.push('FAIL: Schedule Generator');
+        
+        var statusDiv = document.getElementById('status');
+        var allOK = results.every(function(r) { return r.indexOf('OK') !== -1; });
+        statusDiv.innerHTML = '<div class="' + (allOK ? 'success' : 'error') + '">' + results.join('<br>') + '</div>';
+        
+        function testEMI() {
+            try {
+                document.getElementById('emi-amount').value = 100000;
+                document.getElementById('emi-rate').value = 10;
+                document.getElementById('emi-tenure').value = 12;
+                calculateEMI();
+                document.getElementById('result').innerHTML = 'EMI Test: PASS';
+            } catch(e) {
+                document.getElementById('result').innerHTML = 'EMI Test: FAIL - ' + e.message;
+            }
+        }
+        
+        function testCalc() {
+            try {
+                calcDigit('5');
+                calcClear();
+                document.getElementById('result').innerHTML = 'Calculator Test: PASS';
+            } catch(e) {
+                document.getElementById('result').innerHTML = 'Calculator Test: FAIL - ' + e.message;
+            }
+        }
+        
+        function testInterest() {
+            try {
+                document.getElementById('int-principal').value = 10000;
+                document.getElementById('int-rate').value = 5;
+                document.getElementById('int-time').value = 2;
+                calculateInterest();
+                document.getElementById('result').innerHTML = 'Interest Test: PASS';
+            } catch(e) {
+                document.getElementById('result').innerHTML = 'Interest Test: FAIL - ' + e.message;
+            }
+        }
+        
+        function testSchedule() {
+            try {
+                document.getElementById('sched-amount').value = 100000;
+                document.getElementById('sched-rate').value = 10;
+                document.getElementById('sched-tenure').value = 12;
+                generateSchedule();
+                document.getElementById('result').innerHTML = 'Schedule Test: PASS';
+            } catch(e) {
+                document.getElementById('result').innerHTML = 'Schedule Test: FAIL - ' + e.message;
+            }
+        }
+    </script>
+
+    <script src="scripts/emi.js"></script>
+    <script src="scripts/calculator.js"></script>
+    <script src="scripts/interest.js"></script>
+    <script src="scripts/schedule.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+</html>

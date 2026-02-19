@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMI Calculator - Loan & Interest Calculator</title>
+    <meta name="description" content="Calculate EMI, interest, and repayment schedules easily">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <h1>💰 EMI Calculator</h1>
+            <p class="subtitle">Calculate Loans, Interest & Repayment Schedules</p>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="tab active" data-tab="emi">EMI Calculator</button>
+            <button class="tab" data-tab="ordinary">Ordinary Calculator</button>
+            <button class="tab" data-tab="interest">Interest Calculator</button>
+            <button class="tab" data-tab="schedule">Repayment Schedule</button>
+        </nav>
+
+        <main class="main-content">
+            <!-- EMI Calculator -->
+            <section id="emi" class="calculator-section active">
+                <div class="calculator-container">
+                    <h2>EMI Calculator</h2>
+                    <p class="description">Calculate your monthly Equated Monthly Installment (EMI) for home loans, car loans, and personal loans.</p>
+
+                    <div class="form-group">
+                        <label>Loan Amount (₹)</label>
+                        <input type="number" id="emi-amount" placeholder="Enter loan amount" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Interest Rate (% per annum)</label>
+                        <input type="number" id="emi-rate" placeholder="Enter interest rate" min="0" step="0.1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Loan Tenure (months)</label>
+                        <input type="number" id="emi-tenure" placeholder="Enter loan tenure in months" min="1">
+                    </div>
+
+                    <button class="calculate-btn" onclick="calculateEMI()">Calculate EMI</button>
+
+                    <div id="emi-results" class="results" style="display: none;">
+                        <h3>Calculation Results</h3>
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <div class="label">Monthly EMI</div>
+                                <div class="value" id="emi-monthly"></div>
+                            </div>
+                            <div class="result-item">
+                                <div class="label">Total Interest</div>
+                                <div class="value" id="emi-interest"></div>
+                            </div>
+                            <div class="result-item">
+                                <div class="label">Total Payment</div>
+                                <div class="value" id="emi-total"></div>
+                            </div>
+                        </div>
+
+                        <div class="pie-chart-container">
+                            <div class="pie-chart" id="emi-piechart"></div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color principal"></div>
+                                    <span id="legend-principal"></span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color interest"></div>
+                                    <span id="legend-interest"></span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color total"></div>
+                                    <span id="legend-total"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="export-btn" onclick="exportEMI()">📥 Export Results</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ordinary Calculator -->
+            <section id="ordinary" class="calculator-section">
+                <div class="calculator-container">
+                    <h2>Ordinary Calculator</h2>
+                    <p class="description">Simple and easy-to-use calculator for basic arithmetic operations.</p>
+
+                    <div class="ordinary-calculator">
+                        <div class="display" id="calc-display">0</div>
+
+                        <div class="calc-grid">
+                            <button class="calc-btn clear" onclick="calcClear()">C</button>
+                            <button class="calc-btn" onclick="calcToggle()">±</button>
+                            <button class="calc-btn" onclick="calcPercentage()">%</button>
+                            <button class="calc-btn operator" onclick="setOperation('/')">÷</button>
+
+                            <button class="calc-btn" onclick="calcDigit('7')">7</button>
+                            <button class="calc-btn" onclick="calcDigit('8')">8</button>
+                            <button class="calc-btn" onclick="calcDigit('9')">9</button>
+                            <button class="calc-btn operator" onclick="setOperation('*')">×</button>
+
+                            <button class="calc-btn" onclick="calcDigit('4')">4</button>
+                            <button class="calc-btn" onclick="calcDigit('5')">5</button>
+                            <button class="calc-btn" onclick="calcDigit('6')">6</button>
+                            <button class="calc-btn operator" onclick="setOperation('-')">−</button>
+
+                            <button class="calc-btn" onclick="calcDigit('1')">1</button>
+                            <button class="calc-btn" onclick="calcDigit('2')">2</button>
+                            <button class="calc-btn" onclick="calcDigit('3')">3</button>
+                            <button class="calc-btn operator" onclick="setOperation('+')">+</button>
+
+                            <button class="calc-btn zero" onclick="calcDigit('0')">0</button>
+                            <button class="calc-btn" onclick="calcDecimal()">.</button>
+                            <button class="calc-btn equals" onclick="doEquals()">=</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Interest Calculator -->
+            <section id="interest" class="calculator-section">
+                <div class="calculator-container">
+                    <h2>Interest Calculator</h2>
+                    <p class="description">Calculate Simple Interest (SI) and Compound Interest (CI) for your investments and loans.</p>
+
+                    <div class="form-group">
+                        <label>Calculation Type</label>
+                        <div class="type-selector">
+                            <button class="tab active" id="simple-btn" onclick="setInterestType('simple')">Simple Interest</button>
+                            <button class="tab" id="compound-btn" onclick="setInterestType('compound')">Compound Interest</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Principal Amount (₹)</label>
+                        <input type="number" id="int-principal" placeholder="Enter principal amount" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Interest Rate (% per annum)</label>
+                        <input type="number" id="int-rate" placeholder="Enter interest rate" min="0" step="0.1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Time Period (years)</label>
+                        <input type="number" id="int-time" placeholder="Enter time in years" min="0">
+                    </div>
+
+                    <div class="form-group" id="compound-period-group" style="display: none;">
+                        <label>Compounding Frequency</label>
+                        <select id="int-period">
+                            <option value="yearly">Yearly</option>
+                            <option value="half-yearly">Half-Yearly</option>
+                            <option value="quarterly">Quarterly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+
+                    <button class="calculate-btn" onclick="calculateInterest()">Calculate Interest</button>
+
+                    <div id="int-results" class="results" style="display: none;">
+                        <h3 id="int-result-title">Interest Results</h3>
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <div class="label">Principal</div>
+                                <div class="value" id="int-principal-result"></div>
+                            </div>
+                            <div class="result-item">
+                                <div class="label">Interest</div>
+                                <div class="value" id="int-interest-result"></div>
+                            </div>
+                            <div class="result-item">
+                                <div class="label">Total Amount</div>
+                                <div class="value" id="int-total-result"></div>
+                            </div>
+                        </div>
+
+                        <div class="formula-box" id="int-formula"></div>
+
+                        <button class="export-btn" onclick="exportInterest()">📥 Export Results</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Repayment Schedule -->
+            <section id="schedule" class="calculator-section">
+                <div class="calculator-container">
+                    <h2>Repayment Schedule Generator</h2>
+                    <p class="description">Generate a complete month-by-month repayment schedule for your loan with detailed breakdown.</p>
+
+                    <div class="form-group">
+                        <label>Loan Amount (₹)</label>
+                        <input type="number" id="sched-amount" placeholder="Enter loan amount" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Interest Rate (% per annum)</label>
+                        <input type="number" id="sched-rate" placeholder="Enter interest rate" min="0" step="0.1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Loan Tenure (months)</label>
+                        <input type="number" id="sched-tenure" placeholder="Enter loan tenure in months" min="1">
+                    </div>
+
+                    <button class="calculate-btn" onclick="generateSchedule()">Generate Schedule</button>
+
+                    <div id="sched-summary" class="results" style="display: none; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                        <h3>Repayment Schedule Summary</h3>
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <div class="label">Monthly EMI</div>
+                                <div class="value" id="sched-emi"></div>
+                            </div>
+                            <div class="result-item">
+                                <div class="label">Total Principal</div>
+                                <div class="value" id="sched-total-principal"></div>
+                            </div>
+                            <div class="result-item">
+                                <div class="label">Total Interest</div>
+                                <div class="value" id="sched-total-interest"></div>
+                            </div>
+                        </div>
+
+                        <div class="export-buttons">
+                            <button class="export-btn" onclick="exportCSV()">📊 Export as CSV</button>
+                            <button class="export-btn" onclick="exportScheduleText()">📄 Export as Text</button>
+                        </div>
+                    </div>
+
+                    <div id="sched-table-container" class="schedule-table-container" style="display: none;">
+                        <h3>Detailed Repayment Schedule</h3>
+                        <div class="table-wrapper">
+                            <table class="schedule-table" id="schedule-table">
+                                <thead>
+                                    <tr>
+                                        <th>Month</th>
+                                        <th>EMI</th>
+                                        <th>Principal</th>
+                                        <th>Interest</th>
+                                        <th>Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="schedule-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2026 EMI Calculator. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script src="scripts/emi.js"></script>
+    <script src="scripts/calculator.js"></script>
+    <script src="scripts/interest.js"></script>
+    <script src="scripts/schedule.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+</html>

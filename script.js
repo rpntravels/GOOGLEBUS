@@ -79,6 +79,14 @@ function setupNavigation() {
             travelsSection.classList.remove('hidden');
         });
     }
+
+    // EMI Calculator Button
+    const emiBtn = document.getElementById('emiBtn');
+    if (emiBtn) {
+        emiBtn.addEventListener('click', () => {
+            window.open('EMI CALCULATOR/index.html', '_blank');
+        });
+    }
 }
 
 // Setup Event Listeners
