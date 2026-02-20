@@ -80,6 +80,26 @@ function setupNavigation() {
         });
     }
 
+    // Map Button Navigation
+    const mapBtn = document.getElementById('mapBtn');
+    const mapSection = document.getElementById('map-section');
+    const mapHomeBtn = document.getElementById('mapHomeBtn');
+
+    if (mapBtn) {
+        mapBtn.addEventListener('click', () => {
+            travelsSection.classList.add('hidden');
+            if (calendarSection) calendarSection.classList.add('hidden');
+            mapSection.classList.remove('hidden');
+        });
+    }
+
+    if (mapHomeBtn) {
+        mapHomeBtn.addEventListener('click', () => {
+            mapSection.classList.add('hidden');
+            travelsSection.classList.remove('hidden');
+        });
+    }
+
     // EMI Calculator Button
     const emiBtn = document.getElementById('emiBtn');
     if (emiBtn) {
