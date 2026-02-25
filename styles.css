@@ -1159,3 +1159,212 @@ body {
         justify-content: center;
     }
 }
+
+/* ========================================
+   RPN AI BUTTON STYLES
+   ======================================== */
+.rpn-ai-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 999;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rpn-ai-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.7);
+}
+
+.rpn-ai-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+.rpn-ai-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    right: 30px;
+    bottom: 100px;
+    width: 380px;
+    max-width: calc(100vw - 60px);
+    animation: fadeIn 0.3s ease;
+}
+
+.rpn-ai-modal-content {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 550px;
+}
+
+.rpn-ai-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rpn-ai-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: white;
+}
+
+.rpn-ai-close {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    line-height: 1;
+}
+
+.rpn-ai-close:hover {
+    opacity: 0.7;
+}
+
+.rpn-ai-chat-body {
+    padding: 20px;
+    max-height: 350px;
+    overflow-y: auto;
+    background: #f5f7fa;
+}
+
+.rpn-ai-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.rpn-ai-message {
+    display: flex;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rpn-ai-message.user-message {
+    justify-content: flex-end;
+}
+
+.rpn-ai-message.ai-message {
+    justify-content: flex-start;
+}
+
+.rpn-ai-message-content {
+    max-width: 80%;
+    padding: 12px 18px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.rpn-ai-message.user-message .rpn-ai-message-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.rpn-ai-message.ai-message .rpn-ai-message-content {
+    background: white;
+    color: #333;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rpn-ai-input-area {
+    display: flex;
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #eee;
+    gap: 10px;
+}
+
+.rpn-ai-input-area input {
+    flex: 1;
+    padding: 12px 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.rpn-ai-input-area input:focus {
+    border-color: #667eea;
+}
+
+.rpn-ai-send-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rpn-ai-send-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.rpn-ai-send-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.rpn-ai-typing {
+    font-style: italic;
+    color: #888;
+    font-size: 12px;
+    padding: 5px 10px;
+}
+
+@media (max-width: 480px) {
+    .rpn-ai-btn {
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+
+    .rpn-ai-modal {
+        right: 20px;
+        bottom: 80px;
+        width: calc(100vw - 40px);
+    }
+}

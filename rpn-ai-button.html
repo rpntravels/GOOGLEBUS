@@ -1,0 +1,38 @@
+<!-- RPN AI Button Component -->
+<button id="rpnAiBtn" class="rpn-ai-btn" title="Chat with RPN AI">
+    <svg viewBox="0 0 24 24" width="24" height="24">
+        <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+        <circle cx="8" cy="10" r="1.5" fill="currentColor"/>
+        <circle cx="16" cy="10" r="1.5" fill="currentColor"/>
+        <path d="M12 16c-2 0-3.5-1.5-3.5-1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    </svg>
+    <span>RPN AI</span>
+</button>
+
+<!-- AI Chat Modal -->
+<div id="aiChatModal" class="rpn-ai-modal">
+    <div class="rpn-ai-modal-content">
+        <div class="rpn-ai-header">
+            <h3>🤖 RPN AI Assistant</h3>
+            <span class="rpn-ai-close">&times;</span>
+        </div>
+        <div class="rpn-ai-chat-body">
+            <div id="aiChatMessages" class="rpn-ai-messages">
+                <div class="rpn-ai-message ai-message">
+                    <div class="rpn-ai-message-content">
+                        Hello! I'm your RPN AI assistant. How can I help you today? Ask me about bus bookings, routes, payments, or any other queries!
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="rpn-ai-input-area">
+            <input type="text" id="aiChatInput" placeholder="Type your message..." />
+            <button id="aiSendBtn" class="rpn-ai-send-btn">
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                    <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>

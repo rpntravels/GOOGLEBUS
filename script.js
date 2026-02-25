@@ -761,3 +761,203 @@ function copyUPI() {
 window.payWithUPI = payWithUPI;
 window.copyUPI = copyUPI;
 window.editEventFromView = editEventFromView;
+
+// ========================================
+// RPN AI CHATBOT
+// ========================================
+
+// AI Configuration
+const AI_CONFIG = {
+    apiKey: '', // Set your OpenAI API key here or use environment variable
+    model: 'gpt-3.5-turbo',
+    systemPrompt: `You are RPN AI, a helpful assistant for RPN Travels (Google Bus). 
+Company Info:
+- Operating since 1973 (52+ years of service)
+- Phone: 9842422929, 8072560787
+- Email: rpntravels@gmail.com, rpntravels@yahoo.com
+
+Services:
+- Tourist bus booking for marriages, college tours, family functions
+- Special tours: Navagraham Tour, Kovil Tour, Thirupathi Tour, Arupadai Tour, Sabarimalai Tour
+
+Features:
+- Reliable Services
+- Affordable Prices
+- Safety First
+- Customer Satisfaction
+
+Be friendly, concise, and helpful. If you don't know something, suggest contacting the company directly.`
+};
+
+// Chat state
+let chatHistory = [];
+
+// Initialize AI Chat
+function setupAIChat() {
+    const aiBtn = document.getElementById('rpnAiBtn');
+    const aiModal = document.getElementById('aiChatModal');
+    const aiClose = document.querySelector('.rpn-ai-close');
+    const aiSendBtn = document.getElementById('aiSendBtn');
+    const aiInput = document.getElementById('aiChatInput');
+    const aiMessages = document.getElementById('aiChatMessages');
+
+    if (!aiBtn || !aiModal) return;
+
+    // Open chat
+    aiBtn.addEventListener('click', () => {
+        aiModal.style.display = 'block';
+        aiInput.focus();
+    });
+
+    // Close chat
+    aiClose.addEventListener('click', () => {
+        aiModal.style.display = 'none';
+    });
+
+    // Send message on button click
+    aiSendBtn.addEventListener('click', sendMessage);
+
+    // Send message on Enter key
+    aiInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+    // Close on outside click
+    window.addEventListener('click', (e) => {
+        if (e.target === aiModal) {
+            aiModal.style.display = 'none';
+        }
+    });
+}
+
+// Send message to AI
+async function sendMessage() {
+    const aiInput = document.getElementById('aiChatInput');
+    const aiMessages = document.getElementById('aiChatMessages');
+    const message = aiInput.value.trim();
+
+    if (!message) return;
+
+    // Add user message to chat
+    addMessage(message, 'user');
+    aiInput.value = '';
+
+    // Show typing indicator
+    const typingIndicator = document.createElement('div');
+    typingIndicator.className = 'rpn-ai-typing';
+    typingIndicator.textContent = 'AI is typing...';
+    aiMessages.appendChild(typingIndicator);
+    aiMessages.scrollTop = aiMessages.scrollHeight;
+
+    try {
+        // Check if API key is set
+        if (!AI_CONFIG.apiKey) {
+            // Use fallback responses
+            setTimeout(() => {
+                typingIndicator.remove();
+                const response = getFallbackResponse(message);
+                addMessage(response, 'ai');
+            }, 1000);
+            return;
+        }
+
+        // Prepare messages for API
+        const messages = [
+            { role: 'system', content: AI_CONFIG.systemPrompt },
+            ...chatHistory,
+            { role: 'user', content: message }
+        ];
+
+        // Call OpenAI API
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${AI_CONFIG.apiKey}`
+            },
+            body: JSON.stringify({
+                model: AI_CONFIG.model,
+                messages: messages,
+                max_tokens: 500,
+                temperature: 0.7
+            })
+        });
+
+        const data = await response.json();
+
+        typingIndicator.remove();
+
+        if (data.error) {
+            addMessage('Sorry, I encountered an error. Please contact support.', 'ai');
+            console.error('AI Error:', data.error);
+        } else {
+            const aiResponse = data.choices[0].message.content;
+            addMessage(aiResponse, 'ai');
+
+            // Update chat history
+            chatHistory.push({ role: 'user', content: message });
+            chatHistory.push({ role: 'assistant', content: aiResponse });
+
+            // Keep history manageable
+            if (chatHistory.length > 10) {
+                chatHistory = chatHistory.slice(-10);
+            }
+        }
+    } catch (error) {
+        typingIndicator.remove();
+        addMessage('Sorry, I encountered an error. Please try again.', 'ai');
+        console.error('AI Error:', error);
+    }
+}
+
+// Add message to chat UI
+function addMessage(content, sender) {
+    const aiMessages = document.getElementById('aiChatMessages');
+
+    const messageEl = document.createElement('div');
+    messageEl.className = `rpn-ai-message ${sender}-message`;
+
+    const contentEl = document.createElement('div');
+    contentEl.className = 'rpn-ai-message-content';
+    contentEl.textContent = content;
+
+    messageEl.appendChild(contentEl);
+    aiMessages.appendChild(messageEl);
+
+    // Scroll to bottom
+    aiMessages.scrollTop = aiMessages.scrollHeight;
+}
+
+// Fallback responses when API key is not set
+function getFallbackResponse(message) {
+    const lowerMsg = message.toLowerCase();
+
+    if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) {
+        return 'Hello! Welcome to RPN Travels. How can I assist you today?';
+    } else if (lowerMsg.includes('book') || lowerMsg.includes('booking')) {
+        return 'For bus bookings, please call us at 9842422929 or 8072560787. We offer buses for marriages, college tours, family functions, and various pilgrimage tours!';
+    } else if (lowerMsg.includes('price') || lowerMsg.includes('cost') || lowerMsg.includes('rate')) {
+        return 'For pricing information, please contact us directly at 9842422929. We offer competitive and affordable prices!';
+    } else if (lowerMsg.includes('tour') || lowerMsg.includes('package')) {
+        return 'We offer special tour packages including Navagraham Tour, Kovil Tour, Thirupathi Tour, Arupadai Tour, and Sabarimalai Tour. Call 9842422929 for details!';
+    } else if (lowerMsg.includes('contact') || lowerMsg.includes('phone') || lowerMsg.includes('number')) {
+        return 'You can reach us at 9842422929 or 8072560787. Email: rpntravels@gmail.com';
+    } else if (lowerMsg.includes('email')) {
+        return 'Our email addresses are rpntravels@gmail.com and rpntravels@yahoo.com';
+    } else if (lowerMsg.includes('since') || lowerMsg.includes('year') || lowerMsg.includes('experience')) {
+        return 'RPN Travels has been providing reliable transportation services since 1973 - over 52 years of trusted service!';
+    } else if (lowerMsg.includes('payment') || lowerMsg.includes('pay')) {
+        return 'We accept UPI payments (Google Pay, PhonePe, PayTM). Look for the payment section on our website or contact us for details.';
+    } else if (lowerMsg.includes('thank')) {
+        return 'You\'re welcome! Feel free to ask if you have any more questions. Safe travels with RPN Travels!';
+    } else {
+        return 'Thank you for your query! For detailed information, please contact us at 9842422929 or visit our website. We\'re here to help!';
+    }
+}
+
+// Initialize AI Chat on page load
+document.addEventListener('DOMContentLoaded', () => {
+    setupAIChat();
+});
