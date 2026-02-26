@@ -768,9 +768,11 @@ window.editEventFromView = editEventFromView;
 
 // AI Configuration
 const AI_CONFIG = {
-    apiKey: '', // Set your OpenAI API key here or use environment variable
+    apiEndpoint: 'http://localhost:3000/api/chat', // Backend server URL
+    // For production, change to your deployed server URL:
+    // apiEndpoint: 'https://your-server.com/api/chat'
     model: 'gpt-3.5-turbo',
-    systemPrompt: `You are RPN AI, a helpful assistant for RPN Travels (Google Bus). 
+    systemPrompt: `You are RPN AI, a helpful assistant for RPN Travels (Google Bus).
 Company Info:
 - Operating since 1973 (52+ years of service)
 - Phone: 9842422929, 8072560787
@@ -852,36 +854,15 @@ async function sendMessage() {
     aiMessages.scrollTop = aiMessages.scrollHeight;
 
     try {
-        // Check if API key is set
-        if (!AI_CONFIG.apiKey) {
-            // Use fallback responses
-            setTimeout(() => {
-                typingIndicator.remove();
-                const response = getFallbackResponse(message);
-                addMessage(response, 'ai');
-            }, 1000);
-            return;
-        }
-
-        // Prepare messages for API
-        const messages = [
-            { role: 'system', content: AI_CONFIG.systemPrompt },
-            ...chatHistory,
-            { role: 'user', content: message }
-        ];
-
-        // Call OpenAI API
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        // Call backend API
+        const response = await fetch(AI_CONFIG.apiEndpoint, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${AI_CONFIG.apiKey}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: AI_CONFIG.model,
-                messages: messages,
-                max_tokens: 500,
-                temperature: 0.7
+                message: message,
+                history: chatHistory
             })
         });
 
@@ -889,26 +870,28 @@ async function sendMessage() {
 
         typingIndicator.remove();
 
-        if (data.error) {
-            addMessage('Sorry, I encountered an error. Please contact support.', 'ai');
-            console.error('AI Error:', data.error);
-        } else {
-            const aiResponse = data.choices[0].message.content;
-            addMessage(aiResponse, 'ai');
-
-            // Update chat history
-            chatHistory.push({ role: 'user', content: message });
-            chatHistory.push({ role: 'assistant', content: aiResponse });
-
-            // Keep history manageable
-            if (chatHistory.length > 10) {
-                chatHistory = chatHistory.slice(-10);
-            }
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Failed to get response');
         }
+
+        const aiResponse = data.response;
+        addMessage(aiResponse, 'ai');
+
+        // Update chat history
+        chatHistory.push({ role: 'user', content: message });
+        chatHistory.push({ role: 'assistant', content: aiResponse });
+
+        // Keep history manageable
+        if (chatHistory.length > 10) {
+            chatHistory = chatHistory.slice(-10);
+        }
+
     } catch (error) {
         typingIndicator.remove();
-        addMessage('Sorry, I encountered an error. Please try again.', 'ai');
         console.error('AI Error:', error);
+        // Fallback to local responses if backend is unavailable
+        const fallbackResponse = getFallbackResponse(message);
+        addMessage(fallbackResponse, 'ai');
     }
 }
 
