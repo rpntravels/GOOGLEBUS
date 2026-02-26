@@ -768,7 +768,7 @@ window.editEventFromView = editEventFromView;
 
 // AI Configuration
 const AI_CONFIG = {
-    apiKey: 'your-openai-api-key-here',
+    apiKey: '', // Set your OpenAI API key here or use environment variable
     model: 'gpt-3.5-turbo',
     systemPrompt: `You are RPN AI, a helpful assistant for RPN Travels (Google Bus). 
 Company Info:
