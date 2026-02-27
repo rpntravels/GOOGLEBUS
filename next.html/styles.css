@@ -389,3 +389,249 @@ header h1 {
         font-size: 0.6rem;
     }
 }
+
+/* ========================================
+   RPN AI CHATBOT STYLES
+   ======================================== */
+
+.rpn-ai-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.rpn-ai-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(102, 126, 234, 0.7);
+}
+
+.rpn-ai-btn span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.rpn-ai-btn svg {
+    min-width: 24px;
+}
+
+.rpn-ai-modal {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.rpn-ai-modal-content {
+    background: white;
+    margin: 5% auto;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+    overflow: hidden;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.rpn-ai-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rpn-ai-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.rpn-ai-close {
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    line-height: 1;
+}
+
+.rpn-ai-close:hover {
+    transform: scale(1.2);
+    opacity: 0.8;
+}
+
+.rpn-ai-chat-body {
+    height: 400px;
+    overflow-y: auto;
+    padding: 20px;
+    background: #f9f9f9;
+}
+
+.rpn-ai-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.rpn-ai-message {
+    display: flex;
+    animation: messageSlide 0.3s ease;
+}
+
+@keyframes messageSlide {
+    from {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.rpn-ai-message.ai-message {
+    justify-content: flex-start;
+}
+
+.rpn-ai-message.user-message {
+    justify-content: flex-end;
+}
+
+.rpn-ai-message-content {
+    max-width: 80%;
+    padding: 12px 18px;
+    border-radius: 18px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.ai-message .rpn-ai-message-content {
+    background: white;
+    color: #333;
+    border: 1px solid #e0e0e0;
+    border-bottom-left-radius: 4px;
+}
+
+.user-message .rpn-ai-message-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.rpn-ai-message.error-message .rpn-ai-message-content {
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+}
+
+.rpn-ai-typing {
+    color: #999;
+    font-style: italic;
+    font-size: 0.85rem;
+    padding: 10px 0;
+}
+
+.rpn-ai-input-area {
+    display: flex;
+    gap: 10px;
+    padding: 15px 20px;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+}
+
+.rpn-ai-input-area input {
+    flex: 1;
+    padding: 12px 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.rpn-ai-input-area input:focus {
+    border-color: #667eea;
+}
+
+.rpn-ai-send-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.rpn-ai-send-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.rpn-ai-send-btn:active {
+    transform: scale(0.95);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .rpn-ai-btn {
+        bottom: 15px;
+        right: 15px;
+        width: 55px;
+        height: 55px;
+    }
+
+    .rpn-ai-btn span {
+        display: none;
+    }
+
+    .rpn-ai-modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+
+    .rpn-ai-chat-body {
+        height: 300px;
+    }
+}

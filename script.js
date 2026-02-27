@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNavigation();
     setupPayment();
     displayUPIId();
+    setupAIChat();
 });
 
 // Load events from localStorage
@@ -939,8 +940,3 @@ function getFallbackResponse(message) {
         return 'Thank you for your query! For detailed information, please contact us at 9842422929 or visit our website. We\'re here to help!';
     }
 }
-
-// Initialize AI Chat on page load
-document.addEventListener('DOMContentLoaded', () => {
-    setupAIChat();
-});

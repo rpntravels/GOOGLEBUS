@@ -292,3 +292,154 @@ function escapeHtml(text) {
 
 // Make deleteEvent available globally
 window.deleteEvent = deleteEvent;
+
+// ========================================
+// RPN AI CHATBOT
+// ========================================
+
+// AI Configuration
+const AI_CONFIG = {
+    apiEndpoint: 'http://localhost:3000/api/chat', // Backend server URL
+    // For production, change to your deployed server URL:
+    // apiEndpoint: 'https://your-server.com/api/chat'
+    model: 'gpt-3.5-turbo',
+    systemPrompt: `You are RPN AI, a helpful assistant for RPN Travels (Google Bus).
+Company Info:
+- Operating since 1973 (52+ years of service)
+- Phone: 9842422929, 8072560787
+- Email: rpntravels@gmail.com, rpntravels@yahoo.com
+
+Services:
+- Tourist bus booking for marriages, college tours, family functions
+- Special tours: Navagraham Tour, Kovil Tour, Thirupathi Tour, Arupadai Tour, Sabarimalai Tour
+
+Features:
+- Reliable Services
+- Affordable Prices
+- Safety First
+- Customer Satisfaction
+
+Be friendly, concise, and helpful. If you don't know something, suggest contacting the company directly.`
+};
+
+// Chat state
+let chatHistory = [];
+
+// Initialize AI Chat
+function setupAIChat() {
+    const aiBtn = document.getElementById('rpnAiBtn');
+    const aiModal = document.getElementById('aiChatModal');
+    const aiClose = document.querySelector('.rpn-ai-close');
+    const aiSendBtn = document.getElementById('aiSendBtn');
+    const aiInput = document.getElementById('aiChatInput');
+    const aiMessages = document.getElementById('aiChatMessages');
+
+    if (!aiBtn || !aiModal) return;
+
+    // Open chat
+    aiBtn.addEventListener('click', () => {
+        aiModal.style.display = 'block';
+        aiInput.focus();
+    });
+
+    // Close chat
+    aiClose.addEventListener('click', () => {
+        aiModal.style.display = 'none';
+    });
+
+    // Send message on button click
+    aiSendBtn.addEventListener('click', sendMessage);
+
+    // Send message on Enter key
+    aiInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+    // Close on outside click
+    window.addEventListener('click', (e) => {
+        if (e.target === aiModal) {
+            aiModal.style.display = 'none';
+        }
+    });
+}
+
+// Send message to AI
+async function sendMessage() {
+    const aiInput = document.getElementById('aiChatInput');
+    const aiMessages = document.getElementById('aiChatMessages');
+    const message = aiInput.value.trim();
+
+    if (!message) return;
+
+    // Add user message to chat
+    addMessage(message, 'user');
+    aiInput.value = '';
+
+    // Show typing indicator
+    const typingIndicator = document.createElement('div');
+    typingIndicator.className = 'rpn-ai-typing';
+    typingIndicator.textContent = 'AI is typing...';
+    aiMessages.appendChild(typingIndicator);
+    aiMessages.scrollTop = aiMessages.scrollHeight;
+
+    try {
+        // Call backend API
+        const response = await fetch(AI_CONFIG.apiEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message,
+                history: chatHistory
+            })
+        });
+
+        const data = await response.json();
+
+        typingIndicator.remove();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Failed to get response');
+        }
+
+        const aiResponse = data.response;
+        addMessage(aiResponse, 'ai');
+
+        // Update chat history
+        chatHistory.push({ role: 'user', content: message });
+        chatHistory.push({ role: 'assistant', content: aiResponse });
+
+        // Keep history manageable
+        if (chatHistory.length > 10) {
+            chatHistory = chatHistory.slice(-10);
+        }
+
+    } catch (error) {
+        typingIndicator.remove();
+        addMessage('Sorry, I\'m having trouble connecting right now. Please try again later.', 'ai', true);
+        console.error('AI Chat Error:', error);
+    }
+}
+
+// Add message to chat
+function addMessage(text, sender, isError = false) {
+    const aiMessages = document.getElementById('aiChatMessages');
+    const messageEl = document.createElement('div');
+    messageEl.className = `rpn-ai-message ${sender}-message${isError ? ' error-message' : ''}`;
+    
+    const messageContent = document.createElement('div');
+    messageContent.className = 'rpn-ai-message-content';
+    messageContent.textContent = text;
+    
+    messageEl.appendChild(messageContent);
+    aiMessages.appendChild(messageEl);
+    aiMessages.scrollTop = aiMessages.scrollHeight;
+}
+
+// Initialize AI Chat on page load
+document.addEventListener('DOMContentLoaded', () => {
+    setupAIChat();
+});
