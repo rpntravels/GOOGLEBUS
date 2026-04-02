@@ -3,6 +3,10 @@ let currentDate = new Date();
 let events = [];
 let isAdmin = false;
 
+// Todo Application
+let todos = [];
+let isTodoAdmin = false;
+
 // UPI Payment Configuration - UPDATE THESE WITH YOUR DETAILS
 const UPI_CONFIG = {
     upiId: 'ramagencycsc@okaxis',  // Replace with your actual UPI ID (e.g., 9842422929@oksbi)
@@ -25,6 +29,18 @@ const eventsList = document.getElementById('eventsList');
 const closeBtns = document.querySelectorAll('.close');
 const cancelBtns = document.querySelectorAll('.cancel-btn');
 
+// Todo DOM Elements
+const todoModal = document.getElementById('todoModal');
+const todoAdminModal = document.getElementById('todoAdminModal');
+const addTodoBtn = document.getElementById('addTodoBtn');
+const todoAdminBtn = document.getElementById('todoAdminBtn');
+const todoForm = document.getElementById('todoForm');
+const todoAdminForm = document.getElementById('todoAdminForm');
+const todoList = document.getElementById('todoList');
+const todoCloseBtns = document.querySelectorAll('.todo-close');
+const todoAdminCloseBtns = document.querySelectorAll('.todo-admin-close');
+const todoCancelBtns = document.querySelectorAll('#todoModal .cancel-btn');
+
 // Navigation Elements
 const calendarBtn = document.getElementById('calendarBtn');
 const homeBtn = document.getElementById('homeBtn');
@@ -41,13 +57,16 @@ const upiLink = document.getElementById('upiLink');
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     loadEvents();
+    loadTodos();
     renderCalendar();
     renderEvents();
+    renderTodos();
     setupEventListeners();
     setupNavigation();
     setupPayment();
     displayUPIId();
     setupAIChat();
+    setupTodoListeners();
 });
 
 // Load events from localStorage
@@ -643,6 +662,261 @@ function escapeHtml(text) {
 
 // Make deleteEvent available globally
 window.deleteEvent = deleteEvent;
+
+// ========================================
+// TODO FUNCTIONS
+// ========================================
+
+// Load todos from localStorage
+function loadTodos() {
+    const storedTodos = localStorage.getItem('rpnTodos');
+    if (storedTodos) {
+        todos = JSON.parse(storedTodos);
+    }
+}
+
+// Save todos to localStorage
+function saveTodos() {
+    localStorage.setItem('rpnTodos', JSON.stringify(todos));
+}
+
+// Setup Todo Event Listeners
+function setupTodoListeners() {
+    if (addTodoBtn) {
+        addTodoBtn.addEventListener('click', () => openTodoModal());
+    }
+
+    if (todoAdminBtn) {
+        todoAdminBtn.addEventListener('click', () => openTodoAdminModal());
+    }
+
+    // Close buttons
+    todoCloseBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            todoModal.style.display = 'none';
+        });
+    });
+
+    todoAdminCloseBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            todoAdminModal.style.display = 'none';
+        });
+    });
+
+    // Cancel buttons
+    todoCancelBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            todoModal.style.display = 'none';
+        });
+    });
+
+    // Close on outside click
+    window.addEventListener('click', (e) => {
+        if (e.target === todoModal) {
+            todoModal.style.display = 'none';
+        }
+        if (e.target === todoAdminModal) {
+            todoAdminModal.style.display = 'none';
+        }
+    });
+
+    // Form submit
+    if (todoForm) {
+        todoForm.addEventListener('submit', handleTodoSubmit);
+    }
+
+    if (todoAdminForm) {
+        todoAdminForm.addEventListener('submit', handleTodoAdminLogin);
+    }
+}
+
+// Open Todo Modal
+function openTodoModal(todoId = '') {
+    if (!isTodoAdmin) {
+        alert('You must be logged in as admin to add/edit todos!');
+        openTodoAdminModal();
+        return;
+    }
+
+    if (todoId) {
+        const todo = todos.find(t => t.id === todoId);
+        if (todo) {
+            document.getElementById('todoId').value = todo.id;
+            document.getElementById('todoTitle').value = todo.title || '';
+            document.getElementById('todoDescription').value = todo.description || '';
+            document.getElementById('todoPriority').value = todo.priority || 'Medium';
+            document.getElementById('todoDueDate').value = todo.dueDate || '';
+            document.getElementById('todoModalTitle').textContent = 'Edit Todo';
+        }
+    } else {
+        document.getElementById('todoId').value = '';
+        document.getElementById('todoTitle').value = '';
+        document.getElementById('todoDescription').value = '';
+        document.getElementById('todoPriority').value = 'Medium';
+        document.getElementById('todoDueDate').value = '';
+        document.getElementById('todoModalTitle').textContent = 'Add Todo';
+    }
+
+    todoModal.style.display = 'block';
+}
+
+// Open Todo Admin Modal
+function openTodoAdminModal() {
+    if (isTodoAdmin) {
+        // Logout
+        isTodoAdmin = false;
+        todoAdminBtn.textContent = '🔐 Admin';
+        todoAdminBtn.classList.remove('logged-in');
+        renderTodos();
+    } else {
+        document.getElementById('todoAdminPassword').value = '';
+        todoAdminModal.style.display = 'block';
+    }
+}
+
+// Handle Todo Admin Login
+function handleTodoAdminLogin(e) {
+    e.preventDefault();
+    const password = document.getElementById('todoAdminPassword').value;
+
+    // Simple admin password (in production, use proper authentication)
+    if (password === 'Pathu123') {
+        isTodoAdmin = true;
+        todoAdminBtn.textContent = 'Logout';
+        todoAdminBtn.classList.add('logged-in');
+        todoAdminModal.style.display = 'none';
+        renderTodos();
+        alert('Todo admin login successful!');
+    } else {
+        alert('Invalid password!');
+    }
+}
+
+// Handle Todo Submit
+function handleTodoSubmit(e) {
+    e.preventDefault();
+
+    const id = document.getElementById('todoId').value;
+    const todo = {
+        id: id || Date.now().toString(),
+        title: document.getElementById('todoTitle').value,
+        description: document.getElementById('todoDescription').value,
+        priority: document.getElementById('todoPriority').value,
+        dueDate: document.getElementById('todoDueDate').value,
+        completed: false,
+        createdAt: new Date().toISOString()
+    };
+
+    if (id) {
+        // Update existing todo
+        const index = todos.findIndex(t => t.id === id);
+        if (index !== -1) {
+            todo.completed = todos[index].completed;
+            todo.createdAt = todos[index].createdAt;
+            todos[index] = todo;
+        }
+    } else {
+        // Add new todo
+        todos.push(todo);
+    }
+
+    saveTodos();
+    renderTodos();
+    todoModal.style.display = 'none';
+}
+
+// Render Todos
+function renderTodos() {
+    if (!todoList) return;
+
+    if (todos.length === 0) {
+        todoList.innerHTML = '<p class="no-todos">No todos yet. Click "Add Todo" to create one!</p>';
+        return;
+    }
+
+    // Sort todos: incomplete first, then by priority (High > Medium > Low)
+    const priorityOrder = { 'High': 0, 'Medium': 1, 'Low': 2 };
+    const sortedTodos = [...todos].sort((a, b) => {
+        if (a.completed !== b.completed) {
+            return a.completed ? 1 : -1;
+        }
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+    });
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    todoList.innerHTML = sortedTodos.map(todo => {
+        const isOverdue = todo.dueDate && new Date(todo.dueDate) < today && !todo.completed;
+        const priorityClass = `priority-${todo.priority.toLowerCase()}`;
+
+        return `
+            <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                <div class="todo-header-row">
+                    <div style="display: flex; align-items: center; flex: 1;">
+                        ${isTodoAdmin ? `
+                            <input type="checkbox" class="todo-checkbox" 
+                                ${todo.completed ? 'checked' : ''} 
+                                onchange="toggleTodoComplete('${todo.id}')">
+                        ` : ''}
+                        <span class="todo-title">${escapeHtml(todo.title)}</span>
+                    </div>
+                    ${isTodoAdmin ? `
+                        <div class="todo-actions">
+                            <button class="todo-btn edit-todo-btn" onclick="openTodoModal('${todo.id}')">✏️ Edit</button>
+                            <button class="todo-btn delete-todo-btn" onclick="deleteTodo('${todo.id}')">🗑️ Delete</button>
+                        </div>
+                    ` : ''}
+                </div>
+                ${todo.description && isTodoAdmin ? `<p class="todo-description">${escapeHtml(todo.description)}</p>` : ''}
+                ${isTodoAdmin ? `
+                    <div class="todo-meta">
+                        <span class="todo-priority ${priorityClass}">${todo.priority}</span>
+                        ${todo.dueDate ? `
+                            <span class="todo-due-date ${isOverdue ? 'overdue' : ''}">
+                                📅 ${new Date(todo.dueDate).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric'
+                                })}
+                                ${isOverdue ? ' (Overdue)' : ''}
+                            </span>
+                        ` : ''}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+// Toggle Todo Complete
+function toggleTodoComplete(id) {
+    const todo = todos.find(t => t.id === id);
+    if (todo) {
+        todo.completed = !todo.completed;
+        saveTodos();
+        renderTodos();
+    }
+}
+
+// Delete Todo (Admin only)
+function deleteTodo(id) {
+    if (!isTodoAdmin) {
+        alert('You must be logged in as admin to delete todos!');
+        return;
+    }
+
+    if (confirm('Are you sure you want to delete this todo?')) {
+        todos = todos.filter(t => t.id !== id);
+        saveTodos();
+        renderTodos();
+    }
+}
+
+// Make todo functions available globally
+window.openTodoModal = openTodoModal;
+window.toggleTodoComplete = toggleTodoComplete;
+window.deleteTodo = deleteTodo;
 
 // ========================================
 // UPI PAYMENT FUNCTIONS

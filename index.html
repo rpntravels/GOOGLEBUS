@@ -43,7 +43,9 @@
                 <a href="https://fastag.bank.sbi/" target="_blank" class="nav-btn fastag-btn">🏷️ FASTag SBI</a>
                 <a href="https://www.irctc.co.in/nget/train-search" target="_blank" class="nav-btn train-btn">🚂 Train Booking</a>
                 <a href="https://www.redbus.in/" target="_blank" class="nav-btn redbus-btn">🚌 RedBus Booking</a>
-                <a href="https://www.indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en" target="_blank" class="nav-btn PNR-btn">🚌 PNR Status</a>
+                <a href="https://www.indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en" target="_blank" class="nav-btn PNR-btn">🚌 PNR Status
+                    
+                </a>
                 <a href="https://www.yatra.com/bus-tickets" target="_blank" class="nav-btn yatra-btn">🚌 Yatra Booking</a>
                 <a href="https://www.makemytrip.com/bus-tickets/" target="_blank" class="nav-btn makemytrip-btn">🚌 MakeMyTrip Booking</a   >
                 <p class="call-text">Call us for bookings and inquiries!</p>
@@ -186,6 +188,16 @@
                 <button id="addEventBtn" class="add-event-btn">+ Add Event</button>
                 <div id="eventsList" class="events-list"></div>
             </div>
+
+            <!-- Todo Section -->
+            <div class="todo-section">
+                <h3>✅ To-Do List</h3>
+                <div class="todo-header">
+                    <button id="addTodoBtn" class="add-todo-btn">+ Add Todo</button>
+                    <button id="todoAdminBtn" class="todo-admin-btn">🔐 Admin</button>
+                </div>
+                <div id="todoList" class="todo-list"></div>
+            </div>
         </div>
     </section>
 
@@ -277,6 +289,63 @@
                 <div class="form-group">
                     <label for="adminPassword">Password</label>
                     <input type="password" id="adminPassword" required placeholder="Enter admin password">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Login</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Todo Modal -->
+    <div id="todoModal" class="modal">
+        <div class="modal-content">
+            <span class="close todo-close">&times;</span>
+            <h2 id="todoModalTitle">Add Todo</h2>
+            <form id="todoForm">
+                <input type="hidden" id="todoId">
+                <div class="form-group">
+                    <label for="todoTitle">Todo Title *</label>
+                    <input type="text" id="todoTitle" required placeholder="Enter todo title">
+                </div>
+
+                <div class="form-group">
+                    <label for="todoDescription">Description</label>
+                    <textarea id="todoDescription" rows="4" placeholder="Enter description"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="todoPriority">Priority</label>
+                    <select id="todoPriority">
+                        <option value="Low">Low</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="todoDueDate">Due Date</label>
+                    <input type="date" id="todoDueDate">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Save Todo</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Todo Admin Login Modal -->
+    <div id="todoAdminModal" class="modal">
+        <div class="modal-content admin-modal">
+            <span class="close todo-admin-close">&times;</span>
+            <h2>🔐 Todo Admin Login</h2>
+            <form id="todoAdminForm">
+                <div class="form-group">
+                    <label for="todoAdminPassword">Password</label>
+                    <input type="password" id="todoAdminPassword" required placeholder="Enter admin password">
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="submit-btn">Login</button>
