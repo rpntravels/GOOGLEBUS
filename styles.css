@@ -172,6 +172,17 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(26, 115, 232, 0.4);
 }
+.GOOGLEBUS-PAYMENT-btn {
+    background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+    color: white;
+    text-decoration: none;
+}
+
+.GOOGLEBUS-PAYMENT-btn:hover {
+    background: linear-gradient(135deg, #0d47a1 0%, #1a73e8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.4);
+}
 
 /* ========================================
    PAYMENT SECTION STYLES
