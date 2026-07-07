@@ -82,5 +82,16 @@ payload = {
 response = requests.post(url, headers=headers, json=payload)
 
 print(response.json())
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+headers = {
+    "Content-Type": "application/json",
+    "x-merchant-id": os.getenv("CGPEY_MERCHANT_ID"),
+    "x-api-key": os.getenv("CGPEY_API_KEY"),
+    "x-secret-key": os.getenv("CGPEY_SECRET_KEY"),
+}
 if __name__ == "__main__":
     app.run(debug=True)
