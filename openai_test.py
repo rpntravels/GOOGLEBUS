@@ -17,3 +17,53 @@ response = client.chat.completions.create(
 )
 
 print(response.choices[0].message.content)
+import requests
+
+url = "https://verify.cgpey.com/api/v1/verify/pan"
+
+headers = {
+    "Content-Type": "application/json",
+    "x-merchant-id": "YOUR_MERCHANT_ID",
+    "x-api-key": "YOUR_API_KEY",
+    "x-secret-key": "YOUR_SECRET_KEY"
+}
+
+payload = {
+    "pan": "ABCDE1234F"
+}
+
+response = requests.post(url, headers=headers, json=payload)
+
+print(response.status_code)
+print(response.json())from flask import Flask, request, jsonify
+import requests
+
+app = Flask(__name__)
+
+MERCHANT_ID = "YOUR_MERCHANT_ID"
+API_KEY = "YOUR_API_KEY"
+SECRET_KEY = "YOUR_SECRET_KEY"
+
+@app.route("/verify-pan", methods=["POST"])
+def verify_pan():
+    pan = request.json.get("pan")
+
+    url = "https://verify.cgpey.com/api/v1/verify/pan"
+
+    headers = {
+        "Content-Type": "application/json",
+        "x-merchant-id": MERCHANT_ID,
+        "x-api-key": API_KEY,
+        "x-secret-key": SECRET_KEY
+    }
+
+    response = requests.post(
+        url,
+        headers=headers,
+        json={"pan": pan}
+    )
+
+    return jsonify(response.json()), response.status_code
+
+if __name__ == "__main__":
+    app.run(debug=True)
