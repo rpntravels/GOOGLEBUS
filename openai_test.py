@@ -64,6 +64,23 @@ def verify_pan():
     )
 
     return jsonify(response.json()), response.status_code
+import requests
 
+url = "https://verify.cgpey.com/api/v1/verify/pan"
+
+headers = {
+    "Content-Type": "application/json",
+    "x-merchant-id": "YOUR_MERCHANT_ID",
+    "x-api-key": "YOUR_API_KEY",
+    "x-secret-key": "YOUR_SECRET_KEY"
+}
+
+payload = {
+    "pan": "ABCDE1234F"
+}
+
+response = requests.post(url, headers=headers, json=payload)
+
+print(response.json())
 if __name__ == "__main__":
     app.run(debug=True)
