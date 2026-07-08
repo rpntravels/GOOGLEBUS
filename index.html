@@ -415,7 +415,7 @@ document.getElementById("panForm").addEventListener("submit", async function(e){
 
     const pan = document.getElementById("pan").value;
 
-    const response = await fetch("/api/v1/verify/pan", {
+    const response = await fetch("https://verify.cgpey.com/api/v1/verify/pan", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
