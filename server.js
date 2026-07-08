@@ -105,3 +105,5 @@ app.listen(PORT, function() {
     console.log('🚀 RPN Travels Backend running on http://localhost:' + PORT);
     console.log('📡 API endpoint: http://localhost:' + PORT + '/api/chat');
 });
+import dotenv from "dotenv";
+dotenv.config({ path: "cgepy.env" });

@@ -18,8 +18,9 @@
             <div class="bus-gallery">
                 <img src="bus photo front.jpg" alt="Front of the bus">
                 <img src="bus photo side 1.jpg" alt="Side of the bus">
-                <img src="bus photo side copy.jpg" alt="Side right of the bus">
+                
             </div>
+            
 
             <div class="about-section">
                 <p>Since 1973 we have been providing reliable transportation services. Legacy transport operations over last 52 years</p>
@@ -40,8 +41,44 @@
                 <button id="calendarBtn" class="nav-btn">View Event Calendar</button>
                 <button id="emiBtn" class="nav-btn">💰 EMI Calculator</button>
                 <button id="mapBtn" class="nav-btn">🗺️ View Route Map</button>
-                <p class="call-text">Call us for bookings and inquiries!</p>
+                <a href="https://fastag.sbi.bank.in/" target="_blank" class="nav-btn fastag-btn">🏷️ FASTag SBI</a>
+                <a href="https://www.irctc.co.in/nget/train-search" target="_blank" class="nav-btn train-btn">🚂 Train Booking</a>
+                <a href="https://www.redbus.in/" target="_blank" class="nav-btn redbus-btn">🚌 RedBus Booking</a>
+                <a href="https://www.indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en" target="_blank" class="nav-btn PNR-btn">🚌 PNR Status
+                    
+                </a>
+                <a href="https://www.yatra.com/bus-tickets" target="_blank" class="nav-btn yatra-btn">🚌 Yatra Booking</a>
+                <a href="https://www.makemytrip.com/bus-tickets/" target="_blank" class="nav-btn makemytrip-btn">🚌 MakeMyTrip Booking</a >
+                <a href="https://www.rathimeenaspeedparcel.com/" target="_blank" class="nav-btn RATHEEMEENA PARCEL BOOKING-btn">🚌 RATHEE MEENA PARCEL Booking</a >
+                <a href="https://www.rathimeena.in/" target="_blank" class="nav-btn RATHEE MEENA BUS TICKET BOOKING-btn">🚌 RATHEE MEENA BUS TICKET Booking</a >
+                        <a href="https://parivahan.gov.in/" target="_blank" class="nav-btn parivahan-btn">🚗 Parivahan</a>
+                        <a href="https://tntenders.gov.in/nicgep/app" target="_blank" class="nav-btn tntenders-btn">tntenders</a>
+                         <a href="https://pgportal.gov.in/Signin" target="_blank" class="nav-btn CPGRAMS-btn">CPGRAMS</a>
+                                         <a href="https://services.gst.gov.in/services/login" target="_blank" class="nav-btn GST-btn">GST LOGIN</a>
+
+                          <a href="https://rzp.io/rzp/MO6lzJNC" target="_blank" class="nav-btn GOOGLEBUS PAYMENT-btn"> GOOGLEBUS-PAYMENT</a>        
+                    <form><script src="https://checkout.razorpay.com/v1/payment-button.js" data-payment_button_id="pl_SyxRCuam4uoH1N" async> </script> </form>
+
+                                <p class="call-text">Call us for bookings and inquiries!</p>
             </div>
+            <!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>verify.cgpey.com</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>verify.cgpey.com</h1>
+    <p>Folder scaffold created successfully.</p>
+    <button id="pingBtn" type="button">Ping</button>
+    <p id="status" aria-live="polite"></p>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
 
             <!-- Payment Section -->
             <div class="payment-section">
@@ -180,6 +217,16 @@
                 <button id="addEventBtn" class="add-event-btn">+ Add Event</button>
                 <div id="eventsList" class="events-list"></div>
             </div>
+
+            <!-- Todo Section -->
+            <div class="todo-section">
+                <h3>✅ To-Do List</h3>
+                <div class="todo-header">
+                    <button id="addTodoBtn" class="add-todo-btn">+ Add Todo</button>
+                    <button id="todoAdminBtn" class="todo-admin-btn">🔐 Admin</button>
+                </div>
+                <div id="todoList" class="todo-list"></div>
+            </div>
         </div>
     </section>
 
@@ -280,6 +327,63 @@
         </div>
     </div>
 
+    <!-- Todo Modal -->
+    <div id="todoModal" class="modal">
+        <div class="modal-content">
+            <span class="close todo-close">&times;</span>
+            <h2 id="todoModalTitle">Add Todo</h2>
+            <form id="todoForm">
+                <input type="hidden" id="todoId">
+                <div class="form-group">
+                    <label for="todoTitle">Todo Title *</label>
+                    <input type="text" id="todoTitle" required placeholder="Enter todo title">
+                </div>
+
+                <div class="form-group">
+                    <label for="todoDescription">Description</label>
+                    <textarea id="todoDescription" rows="4" placeholder="Enter description"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="todoPriority">Priority</label>
+                    <select id="todoPriority">
+                        <option value="Low">Low</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="todoDueDate">Due Date</label>
+                    <input type="date" id="todoDueDate">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Save Todo</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Todo Admin Login Modal -->
+    <div id="todoAdminModal" class="modal">
+        <div class="modal-content admin-modal">
+            <span class="close todo-admin-close">&times;</span>
+            <h2>🔐 Todo Admin Login</h2>
+            <form id="todoAdminForm">
+                <div class="form-group">
+                    <label for="todoAdminPassword">Password</label>
+                    <input type="password" id="todoAdminPassword" required placeholder="Enter admin password">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Login</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- RPN AI Button -->
     <button id="rpnAiBtn" class="rpn-ai-btn" title="Chat with RPN AI">
         <svg viewBox="0 0 24 24" width="24" height="24">
@@ -337,5 +441,31 @@
   <script src="script.js"></script>
 </body>
 </html>
+    <form id="panForm">
+    <input type="text" id="pan" placeholder="Enter PAN">
+    <button type="submit">Verify PAN</button>
+</form>
+
+<script>
+document.getElementById("panForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+
+    const pan = document.getElementById("pan").value;
+
+    const response = await fetch("https://verify.cgpey.com/api/v1/verify/pan", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "x-merchant-id": "YOUR_MERCHANT_ID",
+            "x-api-key": "YOUR_API_KEY",
+            "x-secret-key": "YOUR_SECRET_KEY"
+        },
+        body: JSON.stringify({pan})
+    });
+
+    const data = await response.json();
+    console.log(data);
+});
+</script>
 </body>
 </html>
