@@ -107,41 +107,9 @@
           <button onclick="copyUPI()" class="copy-btn">📋 Copy UPI ID</button>
         </div>
       </div>
-
-      <!-- PAN Verification Section (Safe: calls backend /api/pan-verify) -->
-      <div class="payment-section" style="margin-top: 20px;">
-        <h3>🪪 PAN Verification</h3>
-        <p class="payment-desc">Enter PAN and verify securely.</p>
-        <form id="panForm">
-          <input type="text" id="pan" placeholder="Enter PAN (e.g., ABCDE1234F)" required maxlength="10" style="text-transform: uppercase;" />
-          <button type="submit" class="nav-btn">Verify PAN</button>
-        </form>
-        <p id="panResult" style="margin-top:10px;"></p>
-      </div>
     </div>
   </section>
 
   <script src="script.js"></script>
-  <script>
-    document.getElementById("panForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const pan = document.getElementById("pan").value.trim().toUpperCase();
-      const resultEl = document.getElementById("panResult");
-      resultEl.textContent = "Verifying...";
-
-      try {
-        const response = await fetch("/api/pan-verify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pan })
-        });
-
-        const data = await response.json();
-        resultEl.textContent = data.message || JSON.stringify(data);
-      } catch (error) {
-        resultEl.textContent = "Verification failed. Please try again.";
-      }
-    });
-  </script>
 </body>
 </html>
