@@ -58,6 +58,28 @@
    class="nav-btn PAN-btn">
    VERIFY.CGPEY.COM
 </a>
+        <input type="text" id="pan" placeholder="Enter PAN">
+<button onclick="verifyPAN()">Verify PAN</button>
+
+<script>
+async function verifyPAN() {
+    const response = await fetch("https://verify.cgpey.com/api/v1/verify/pan", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "x-merchant-id": "YOUR_MERCHANT_ID",
+            "x-api-key": "YOUR_API_KEY",
+            "x-secret-key": "YOUR_SECRET_KEY"
+        },
+        body: JSON.stringify({
+            pan: document.getElementById("pan").value
+        })
+    });
+
+    const result = await response.json();
+    console.log(result);
+}
+</script>
 
         <form>
           <script src="https://checkout.razorpay.com/v1/payment-button.js" data-payment_button_id="pl_SyxRCuam4uoH1N" async></script>
