@@ -11,6 +11,48 @@ var app = express();
 var PORT = process.env.PORT || 3000;
 var PAN_VERIFY_API_URL = process.env.CGEPY_VERIFY_URL || process.env.CGPEY_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/pan';
 
+function getRequestIp(req) {
+    var forwardedFor = req.headers['x-forwarded-for'];
+
+    if (forwardedFor && typeof forwardedFor === 'string') {
+        return forwardedFor.split(',')[0].trim();
+    }
+
+    if (req.ip) {
+        return req.ip;
+    }
+
+    if (req.connection && req.connection.remoteAddress) {
+        return req.connection.remoteAddress;
+    }
+
+    if (req.socket && req.socket.remoteAddress) {
+        return req.socket.remoteAddress;
+    }
+
+    return '';
+}
+
+function getAllowedIps() {
+    var value = process.env.IP_WHITELIST || process.env.IP_ALLOWLIST || '';
+
+    return value.split(',').map(function(ip) {
+        return ip.trim();
+    }).filter(Boolean);
+}
+
+function isIpAllowed(req) {
+    var allowedIps = getAllowedIps();
+
+    if (allowedIps.length === 0) {
+        return true;
+    }
+
+    var requestIp = getRequestIp(req);
+
+    return allowedIps.indexOf(requestIp) !== -1;
+}
+
 function getBaseUrl(req) {
     var host = req.get('host');
     if (!host) {
@@ -131,6 +173,13 @@ function handlePanVerification(req, res) {
         return res.status(400).json({ success: false, error: 'PAN is required' });
     }
 
+    if (!isIpAllowed(req)) {
+        return res.status(403).json({
+            success: false,
+            error: 'IP is not allowlisted for PAN verification'
+        });
+    }
+
     if (!merchantId || !apiKey || !secretKey) {
         return res.status(500).json({
             success: false,
@@ -201,5 +250,10 @@ app.listen(PORT, function() {
     var missingCgepyKeys = getMissingEnvKeys(['CGEPY_MERCHANT_ID', 'CGEPY_API_KEY', 'CGEPY_SECRET_KEY']);
     if (missingCgepyKeys.length > 0) {
         console.warn('⚠️ Missing env keys for PAN verify:', missingCgepyKeys.join(', '));
+    }
+
+    var allowedIps = getAllowedIps();
+    if (allowedIps.length > 0) {
+        console.log('🔒 PAN verify IP whitelist enabled:', allowedIps.join(', '));
     }
 });

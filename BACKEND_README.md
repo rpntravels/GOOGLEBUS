@@ -21,6 +21,7 @@ cp .env.example .env
 Edit `.env` and add your API key:
 ```
 OPENAI_API_KEY=your-actual-api-key-here
+IP_WHITELIST=192.168.0.1
 PORT=3000
 ```
 
@@ -153,6 +154,11 @@ git push heroku main
 - ⚠️ Update CORS origins in `server.js` for your production domain
 
 ## Troubleshooting
+
+**IP Whitelist Error:**
+- Add the approved client IPs to `IP_WHITELIST` in `.env` as a comma-separated list.
+- Example: `IP_WHITELIST=192.168.0.1,203.0.113.10`
+- If requests are proxied, make sure your hosting platform forwards `x-forwarded-for` or `x-real-ip`.
 
 **CORS Error:**
 - Update the `origin` array in `server.js` with your frontend URL

@@ -2,6 +2,46 @@ const fetch = require('node-fetch');
 
 const PAN_VERIFY_API_URL = process.env.CGEPY_VERIFY_URL || process.env.CGPEY_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/pan';
 
+function getRequestIp(req) {
+  const forwardedFor = req.headers['x-forwarded-for'];
+
+  if (forwardedFor && typeof forwardedFor === 'string') {
+    return forwardedFor.split(',')[0].trim();
+  }
+
+  if (req.headers['x-real-ip']) {
+    return req.headers['x-real-ip'];
+  }
+
+  if (req.socket && req.socket.remoteAddress) {
+    return req.socket.remoteAddress;
+  }
+
+  if (req.connection && req.connection.remoteAddress) {
+    return req.connection.remoteAddress;
+  }
+
+  return '';
+}
+
+function getAllowedIps() {
+  const value = process.env.IP_WHITELIST || process.env.IP_ALLOWLIST || '';
+
+  return value.split(',').map((ip) => ip.trim()).filter(Boolean);
+}
+
+function isIpAllowed(req) {
+  const allowedIps = getAllowedIps();
+
+  if (allowedIps.length === 0) {
+    return true;
+  }
+
+  const requestIp = getRequestIp(req);
+
+  return allowedIps.includes(requestIp);
+}
+
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -61,6 +101,13 @@ module.exports = async function handler(req, res) {
 
   if (!pan) {
     return res.status(400).json({ success: false, error: 'PAN is required' });
+  }
+
+  if (!isIpAllowed(req)) {
+    return res.status(403).json({
+      success: false,
+      error: 'IP is not allowlisted for PAN verification'
+    });
   }
 
   if (!merchantId || !apiKey || !secretKey) {
