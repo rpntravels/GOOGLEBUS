@@ -90,6 +90,31 @@ Health check endpoint.
 }
 ```
 
+### POST `/api/v1/verify/pan`
+PAN verification proxy endpoint.
+
+Request:
+```json
+{
+    "pan": "AZYPH1234W"
+}
+```
+
+Local test commands:
+```bash
+# Public IP to share with CGEPY support
+npm run ip
+
+# Direct call to upstream using values from .env
+npm run pan:test:direct
+
+# Through local backend proxy (run `npm start` first)
+npm run pan:test:local
+```
+
+If you receive `403 Forbidden` with `IP whitelist is mandatory but not configured`,
+your source IP must be allowlisted by CGEPY for your merchant.
+
 ## Deployment Options
 
 ### Option 1: Render (Free)
@@ -106,6 +131,12 @@ Health check endpoint.
 
 ### Option 3: Vercel
 Use `vercel.json` configuration for serverless deployment.
+
+For PAN verification API on Vercel, add these project environment variables:
+- `CGEPY_VERIFY_URL`
+- `CGEPY_MERCHANT_ID`
+- `CGEPY_API_KEY`
+- `CGEPY_SECRET_KEY`
 
 ### Option 4: Heroku
 ```bash
@@ -131,6 +162,11 @@ git push heroku main
 - Check if server is running: `http://localhost:3000/api/health`
 - Verify OpenAI API key is correct in `.env`
 - Check console logs for errors
+
+**PAN Verify Returns 403:**
+- Run `npm run ip` and share that IP with CGEPY support.
+- Ask CGEPY to allowlist the server IP (or disable IP whitelist for the merchant).
+- Include `requestId` from the failed response when raising support ticket.
 
 ## Files
 
