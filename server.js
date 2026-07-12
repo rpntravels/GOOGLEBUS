@@ -11,6 +11,14 @@ var app = express();
 var PORT = process.env.PORT || 3000;
 var PAN_VERIFY_API_URL = process.env.CGEPY_VERIFY_URL || process.env.CGPEY_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/pan';
 
+function getBaseUrl(req) {
+    var host = req.get('host');
+    if (!host) {
+        return '';
+    }
+    return req.protocol + '://' + host;
+}
+
 function getMissingEnvKeys(keys) {
     return keys.filter(function(key) {
         var value = process.env[key];
@@ -104,12 +112,20 @@ app.post('/api/chat', function(req, res) {
     });
 });
 
-// PAN verification proxy endpoint
-app.post('/api/verify/pan', function(req, res) {
+function handlePanVerification(req, res) {
     var pan = (req.body.pan || '').toString().trim().toUpperCase();
     var merchantId = process.env.CGEPY_MERCHANT_ID || process.env.CGPEY_MERCHANT_ID;
     var apiKey = process.env.CGEPY_API_KEY || process.env.CGPEY_API_KEY;
     var secretKey = process.env.CGEPY_SECRET_KEY || process.env.CGPEY_SECRET_KEY;
+    var baseUrl = getBaseUrl(req);
+    var normalizedVerifyUrl = (PAN_VERIFY_API_URL || '').replace(/\/$/, '');
+
+    if (baseUrl && normalizedVerifyUrl === (baseUrl + '/api/v1/verify/pan')) {
+        return res.status(500).json({
+            success: false,
+            error: 'PAN verify proxy target points to this same endpoint. Set CGEPY_VERIFY_URL to the real upstream API URL.'
+        });
+    }
 
     if (!pan) {
         return res.status(400).json({ success: false, error: 'PAN is required' });
@@ -159,7 +175,11 @@ app.post('/api/verify/pan', function(req, res) {
             error: error.message || 'Failed to connect to CGEPY verification API'
         });
     });
-});
+}
+
+// PAN verification proxy endpoints
+app.post('/api/verify/pan', handlePanVerification);
+app.post('/api/v1/verify/pan', handlePanVerification);
 
 // Health check endpoint
 app.get('/api/health', function(req, res) {
@@ -171,6 +191,7 @@ app.listen(PORT, function() {
     console.log('🚀 RPN Travels Backend running on http://localhost:' + PORT);
     console.log('📡 API endpoint: http://localhost:' + PORT + '/api/chat');
     console.log('🧾 PAN verify endpoint: http://localhost:' + PORT + '/api/verify/pan');
+    console.log('🧾 PAN verify v1 endpoint: http://localhost:' + PORT + '/api/v1/verify/pan');
 
     var missingOpenAIKeys = getMissingEnvKeys(['OPENAI_API_KEY']);
     if (missingOpenAIKeys.length > 0) {

@@ -8,10 +8,25 @@
 </head>
 <body>
   <main class="container">
-    <h1>verify.cgpey.com</h1>
-    <p>Folder scaffold created successfully.</p>
-    <button id="pingBtn" type="button">Ping</button>
+    <h1>PAN Verification</h1>
+    <p class="subtitle">Securely verify PAN via <code>/api/v1/verify/pan</code></p>
+
+    <form id="panForm" class="verify-form">
+      <label for="panInput">PAN Number</label>
+      <input
+        id="panInput"
+        name="pan"
+        type="text"
+        placeholder="ABCDE1234F"
+        maxlength="10"
+        autocomplete="off"
+        required
+      />
+      <button id="verifyBtn" type="submit">Verify PAN</button>
+    </form>
+
     <p id="status" aria-live="polite"></p>
+    <pre id="result" aria-live="polite"></pre>
   </main>
   <script src="script.js"></script>
 </body>
