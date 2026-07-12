@@ -1,6 +1,7 @@
 // RPN Travels Backend Server
 // OpenAI API Proxy - Keeps your API key secure on the server
 
+require('dotenv').config({ path: 'cgepy.env' });
 require('dotenv').config();
 var express = require('express');
 var cors = require('cors');
@@ -8,6 +9,14 @@ var fetch = require('node-fetch');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
+var PAN_VERIFY_API_URL = process.env.CGEPY_VERIFY_URL || process.env.CGPEY_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/pan';
+
+function getMissingEnvKeys(keys) {
+    return keys.filter(function(key) {
+        var value = process.env[key];
+        return !value || !value.toString().trim();
+    });
+}
 
 // Middleware - CORS settings
 app.use(cors({
@@ -95,6 +104,63 @@ app.post('/api/chat', function(req, res) {
     });
 });
 
+// PAN verification proxy endpoint
+app.post('/api/verify/pan', function(req, res) {
+    var pan = (req.body.pan || '').toString().trim().toUpperCase();
+    var merchantId = process.env.CGEPY_MERCHANT_ID || process.env.CGPEY_MERCHANT_ID;
+    var apiKey = process.env.CGEPY_API_KEY || process.env.CGPEY_API_KEY;
+    var secretKey = process.env.CGEPY_SECRET_KEY || process.env.CGPEY_SECRET_KEY;
+
+    if (!pan) {
+        return res.status(400).json({ success: false, error: 'PAN is required' });
+    }
+
+    if (!merchantId || !apiKey || !secretKey) {
+        return res.status(500).json({
+            success: false,
+            error: 'CGEPY credentials are not configured on server'
+        });
+    }
+
+    fetch(PAN_VERIFY_API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-merchant-id': merchantId,
+            'x-api-key': apiKey,
+            'x-secret-key': secretKey
+        },
+        body: JSON.stringify({ pan: pan })
+    })
+    .then(function(response) {
+        return response.text().then(function(text) {
+            var data;
+            try {
+                data = text ? JSON.parse(text) : {};
+            } catch (e) {
+                data = { raw: text };
+            }
+
+            if (!response.ok) {
+                return res.status(response.status).json({
+                    success: false,
+                    error: 'CGEPY verification failed',
+                    details: data
+                });
+            }
+
+            res.json(data);
+        });
+    })
+    .catch(function(error) {
+        console.error('CGEPY API Error:', error);
+        res.status(502).json({
+            success: false,
+            error: error.message || 'Failed to connect to CGEPY verification API'
+        });
+    });
+});
+
 // Health check endpoint
 app.get('/api/health', function(req, res) {
     res.json({ status: 'OK', service: 'RPN Travels API' });
@@ -104,6 +170,15 @@ app.get('/api/health', function(req, res) {
 app.listen(PORT, function() {
     console.log('🚀 RPN Travels Backend running on http://localhost:' + PORT);
     console.log('📡 API endpoint: http://localhost:' + PORT + '/api/chat');
+    console.log('🧾 PAN verify endpoint: http://localhost:' + PORT + '/api/verify/pan');
+
+    var missingOpenAIKeys = getMissingEnvKeys(['OPENAI_API_KEY']);
+    if (missingOpenAIKeys.length > 0) {
+        console.warn('⚠️ Missing env keys for AI:', missingOpenAIKeys.join(', '));
+    }
+
+    var missingCgepyKeys = getMissingEnvKeys(['CGEPY_MERCHANT_ID', 'CGEPY_API_KEY', 'CGEPY_SECRET_KEY']);
+    if (missingCgepyKeys.length > 0) {
+        console.warn('⚠️ Missing env keys for PAN verify:', missingCgepyKeys.join(', '));
+    }
 });
-import dotenv from "dotenv";
-dotenv.config({ path: "cgepy.env" });
