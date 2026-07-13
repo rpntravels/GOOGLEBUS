@@ -10,7 +10,6 @@ var fetch = require('node-fetch');
 var app = express();
 var PORT = process.env.PORT || 3000;
 var PAN_VERIFY_API_URL = process.env.CGEPY_VERIFY_URL || process.env.CGPEY_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/pan';
-var VOTER_ID_VERIFY_API_URL = process.env.CGEPY_VOTER_ID_VERIFY_URL || process.env.CGPEY_VOTER_ID_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/voter-id';
 
 function getRequestIp(req) {
     var forwardedFor = req.headers['x-forwarded-for'];
@@ -227,83 +226,9 @@ function handlePanVerification(req, res) {
     });
 }
 
-function handleVoterIdVerification(req, res) {
-    var voterId = (req.body.voterId || '').toString().trim().toUpperCase();
-    var merchantId = process.env.CGEPY_MERCHANT_ID || process.env.CGPEY_MERCHANT_ID;
-    var apiKey = process.env.CGEPY_API_KEY || process.env.CGPEY_API_KEY;
-    var secretKey = process.env.CGEPY_SECRET_KEY || process.env.CGPEY_SECRET_KEY;
-    var baseUrl = getBaseUrl(req);
-    var normalizedVerifyUrl = (VOTER_ID_VERIFY_API_URL || '').replace(/\/$/, '');
-
-    if (baseUrl && normalizedVerifyUrl === (baseUrl + '/api/v1/verify/voter-id')) {
-        return res.status(500).json({
-            success: false,
-            error: 'Voter ID verify proxy target points to this same endpoint. Set CGEPY_VOTER_ID_VERIFY_URL to the real upstream API URL.'
-        });
-    }
-
-    if (!voterId) {
-        return res.status(400).json({ success: false, error: 'voterId is required' });
-    }
-
-    if (!isIpAllowed(req)) {
-        return res.status(403).json({
-            success: false,
-            error: 'IP is not allowlisted for voter ID verification'
-        });
-    }
-
-    if (!merchantId || !apiKey || !secretKey) {
-        return res.status(500).json({
-            success: false,
-            error: 'CGEPY credentials are not configured on server'
-        });
-    }
-
-    fetch(VOTER_ID_VERIFY_API_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'x-merchant-id': merchantId,
-            'x-api-key': apiKey,
-            'x-secret-key': secretKey
-        },
-        body: JSON.stringify({ voterId: voterId })
-    })
-    .then(function(response) {
-        return response.text().then(function(text) {
-            var data;
-            try {
-                data = text ? JSON.parse(text) : {};
-            } catch (e) {
-                data = { raw: text };
-            }
-
-            if (!response.ok) {
-                return res.status(response.status).json({
-                    success: false,
-                    error: 'CGEPY voter ID verification failed',
-                    details: data
-                });
-            }
-
-            res.json(data);
-        });
-    })
-    .catch(function(error) {
-        console.error('CGEPY Voter ID API Error:', error);
-        res.status(502).json({
-            success: false,
-            error: error.message || 'Failed to connect to CGEPY voter ID verification API'
-        });
-    });
-}
-
 // PAN verification proxy endpoints
 app.post('/api/verify/pan', handlePanVerification);
 app.post('/api/v1/verify/pan', handlePanVerification);
-app.post('/api/verify/voter-id', handleVoterIdVerification);
-app.post('/api/v1/verify/voter-id', handleVoterIdVerification);
 
 // Health check endpoint
 app.get('/api/health', function(req, res) {
@@ -316,8 +241,6 @@ app.listen(PORT, function() {
     console.log('📡 API endpoint: http://localhost:' + PORT + '/api/chat');
     console.log('🧾 PAN verify endpoint: http://localhost:' + PORT + '/api/verify/pan');
     console.log('🧾 PAN verify v1 endpoint: http://localhost:' + PORT + '/api/v1/verify/pan');
-    console.log('🪪 Voter ID verify endpoint: http://localhost:' + PORT + '/api/verify/voter-id');
-    console.log('🪪 Voter ID verify v1 endpoint: http://localhost:' + PORT + '/api/v1/verify/voter-id');
 
     var missingOpenAIKeys = getMissingEnvKeys(['OPENAI_API_KEY']);
     if (missingOpenAIKeys.length > 0) {
