@@ -3,6 +3,36 @@ let currentDate = new Date();
 let events = [];
 let isAdmin = false;
 
+function ensurePanVerified() {
+    const fallbackUrl = '../index.html';
+    const rawSession = sessionStorage.getItem('panVerification');
+
+    if (!rawSession) {
+        window.location.replace(fallbackUrl);
+        return false;
+    }
+
+    try {
+        const parsed = JSON.parse(rawSession);
+        const verifiedAt = new Date(parsed.verifiedAt || '').getTime();
+        const now = Date.now();
+        const isRecent = Number.isFinite(verifiedAt) && (now - verifiedAt) <= (30 * 60 * 1000);
+        const hasPan = typeof parsed.pan === 'string' && parsed.pan.length === 10;
+
+        if (!isRecent || !hasPan) {
+            sessionStorage.removeItem('panVerification');
+            window.location.replace(fallbackUrl);
+            return false;
+        }
+    } catch (error) {
+        sessionStorage.removeItem('panVerification');
+        window.location.replace(fallbackUrl);
+        return false;
+    }
+
+    return true;
+}
+
 // DOM Elements
 const daysGrid = document.getElementById('daysGrid');
 const currentMonthEl = document.getElementById('currentMonth');
@@ -20,6 +50,10 @@ const cancelBtns = document.querySelectorAll('.cancel-btn');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    if (!ensurePanVerified()) {
+        return;
+    }
+
     loadEvents();
     renderCalendar();
     renderEvents();
