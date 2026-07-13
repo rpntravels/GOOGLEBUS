@@ -33,6 +33,64 @@ body {
   padding: 1.5rem;
 }
 
+.nav-links {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.nav-links a {
+  text-decoration: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: #f8fafc;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.nav-links a.active,
+.nav-links a:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.link-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.9rem;
+  margin-top: 0.7rem;
+}
+
+.service-card {
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem;
+  background: #f8fafc;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.service-card h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.service-card p {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.service-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
 h1 {
   margin: 0;
   font-size: 1.8rem;

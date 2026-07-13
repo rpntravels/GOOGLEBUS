@@ -3,31 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>verify.cgpey.com</title>
+  <title>CGPEY Verify Portal</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="container">
-    <h1>PAN Verification</h1>
-    <p class="subtitle">Securely verify PAN via <code>/api/v1/verify/pan</code> (pk_9edfc78b6edf287eb5bd143725735cbd,54.162.136.93,76.76.21.21)</p>
+    <nav class="nav-links" aria-label="Verification pages">
+      <a href="./index.html" class="active">Home</a>
+      <a href="./pan/index.html">PAN Verification</a>
+      <a href="./voter-id/index.html">Voter ID Verification</a>
+    </nav>
 
-    <form i="panForm" class="verify-form">
-      <label for="panInput">PAN Number</label>
-      <input
-        id="panInput"
-        name="pan"
-        type="text"
-        placeholder="ABCDE1234F"
-        maxlength="10"
-        autocomplete="off"
-        required
-      />
-      <button id="verifyBtn" type="submit">Verify PAN</button>
-    </form>
+    <h1>Identity Verification Portal</h1>
+    <p class="subtitle">Choose a service below to continue.</p>
 
-    <p id="status" aria-live="polite"></p>
-    <pre id="result" aria-live="polite"></pre>
+    <section class="link-grid" aria-label="Verification services">
+      <a class="service-card" href="./pan/index.html">
+        <h2>PAN Verification</h2>
+        <p>Validate PAN using <code>/api/v1/verify/pan</code>.</p>
+      </a>
+      <a class="service-card" href="./voter-id/index.html">
+        <h2>Voter ID Verification</h2>
+        <p>Validate voter ID using <code>/api/v1/verify/voter-id</code>.</p>
+      </a>
+    </section>
   </main>
-  <script src="script.js"></script>
 </body>
 </html>

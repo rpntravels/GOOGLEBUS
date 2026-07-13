@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voter ID Verification</title>
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <main class="container">
+    <nav class="nav-links" aria-label="Verification pages">
+      <a href="../index.html">Home</a>
+      <a href="../pan/index.html">PAN Verification</a>
+      <a href="./index.html" class="active">Voter ID Verification</a>
+    </nav>
+
+    <h1>Voter ID Verification</h1>
+    <p class="subtitle">Securely verify voter ID via <code>/api/v1/verify/voter-id</code>.</p>
+
+    <form id="voterForm" class="verify-form">
+      <label for="voterInput">Voter ID</label>
+      <input
+        id="voterInput"
+        name="voterId"
+        type="text"
+        placeholder="YIM139XXXX"
+        maxlength="10"
+        autocomplete="off"
+        required
+      />
+      <button id="verifyVoterBtn" type="submit">Verify Voter ID</button>
+    </form>
+
+    <p id="status" aria-live="polite"></p>
+    <pre id="result" aria-live="polite"></pre>
+  </main>
+  <script src="./script.js"></script>
+</body>
+</html>
