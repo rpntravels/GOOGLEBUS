@@ -73,6 +73,14 @@ function parseBody(req) {
   return {};
 }
 
+function logVerificationIpContext(req, details) {
+  const requestIp = getRequestIp(req);
+  const upstreamClientIp = details && details.error && (details.error.clientIP || details.error.clientIp);
+  const requestId = details && details.requestId;
+
+  console.warn('[PAN] verification failed - requestIp=' + (requestIp || 'unknown') + ', upstreamClientIP=' + (upstreamClientIp || 'unknown') + ', requestId=' + (requestId || 'n/a'));
+}
+
 module.exports = async function handler(req, res) {
   setCors(res);
 
@@ -139,6 +147,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (!response.ok) {
+      logVerificationIpContext(req, data);
       return res.status(response.status).json({
         success: false,
         error: 'CGEPY verification failed',

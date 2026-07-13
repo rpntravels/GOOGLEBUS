@@ -69,6 +69,36 @@ function getMissingEnvKeys(keys) {
     });
 }
 
+function logVerificationIpContext(label, req, details) {
+    var requestIp = getRequestIp(req);
+    var upstreamClientIp = details && details.error && (details.error.clientIP || details.error.clientIp);
+    var requestId = details && details.requestId;
+
+    console.warn('[' + label + '] verification failed - requestIp=' + (requestIp || 'unknown') + ', upstreamClientIP=' + (upstreamClientIp || 'unknown') + ', requestId=' + (requestId || 'n/a'));
+}
+
+function getVerificationDiagnostics(req) {
+    var allowedIps = getAllowedIps();
+    var requestIp = getRequestIp(req);
+
+    return {
+        success: true,
+        requestIp: requestIp || 'unknown',
+        isIpAllowed: isIpAllowed(req),
+        allowlistCount: allowedIps.length,
+        allowlist: allowedIps,
+        verifyUrls: {
+            pan: PAN_VERIFY_API_URL,
+            voterId: VOTER_VERIFY_API_URL
+        },
+        credentialsConfigured: {
+            merchantId: !!(process.env.CGEPY_MERCHANT_ID || process.env.CGPEY_MERCHANT_ID),
+            apiKey: !!(process.env.CGEPY_API_KEY || process.env.CGPEY_API_KEY),
+            secretKey: !!(process.env.CGEPY_SECRET_KEY || process.env.CGPEY_SECRET_KEY)
+        }
+    };
+}
+
 // Middleware - CORS settings
 app.use(cors({
     origin: true, // Allow all origins for development. Set to specific URL in production.
@@ -208,6 +238,7 @@ function handlePanVerification(req, res) {
             }
 
             if (!response.ok) {
+                logVerificationIpContext('PAN', req, data);
                 return res.status(response.status).json({
                     success: false,
                     error: 'CGEPY verification failed',
@@ -280,6 +311,7 @@ function handleVoterIdVerification(req, res) {
             }
 
             if (!response.ok) {
+                logVerificationIpContext('VOTER_ID', req, data);
                 return res.status(response.status).json({
                     success: false,
                     error: 'CGEPY verification failed',
@@ -307,6 +339,14 @@ app.post('/api/v1/verify/pan', handlePanVerification);
 app.post('/api/verify/voter-id', handleVoterIdVerification);
 app.post('/api/v1/verify/voter-id', handleVoterIdVerification);
 
+// Verification diagnostics endpoints
+app.get('/api/verify/diagnostics', function(req, res) {
+    res.json(getVerificationDiagnostics(req));
+});
+app.get('/api/v1/verify/diagnostics', function(req, res) {
+    res.json(getVerificationDiagnostics(req));
+});
+
 // Health check endpoint
 app.get('/api/health', function(req, res) {
     res.json({ status: 'OK', service: 'RPN Travels API' });
@@ -320,6 +360,7 @@ app.listen(PORT, function() {
     console.log('🧾 PAN verify v1 endpoint: http://localhost:' + PORT + '/api/v1/verify/pan');
     console.log('🗳️ Voter ID verify endpoint: http://localhost:' + PORT + '/api/verify/voter-id');
     console.log('🗳️ Voter ID verify v1 endpoint: http://localhost:' + PORT + '/api/v1/verify/voter-id');
+    console.log('🩺 Verify diagnostics endpoint: http://localhost:' + PORT + '/api/v1/verify/diagnostics');
 
     var missingOpenAIKeys = getMissingEnvKeys(['OPENAI_API_KEY']);
     if (missingOpenAIKeys.length > 0) {
