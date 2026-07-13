@@ -57,6 +57,9 @@
         <button id="panVerifyBtn" onclick="verifyPAN()">Verify PAN</button>
         <button id="panNextBtn" class="nav-btn" onclick="goToNextPage()" style="display:none;">Next Page</button>
         <pre id="panResult"></pre>
+        <input type="text" id="voterId" placeholder="Enter Voter ID (ABC1234567)" maxlength="10" autocomplete="off">
+        <button id="voterVerifyBtn" onclick="verifyVoterId()">Verify Voter ID</button>
+        <pre id="voterResult"></pre>
         <script>
         function getPanApiBase() {
           return window.location.protocol === "file:" ? "http://localhost:3000" : "";
@@ -72,6 +75,14 @@
 
         function isValidPan(value) {
           return /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(value);
+        }
+
+        function normalizeVoterId(value) {
+          return (value || "").replace(/\s+/g, "").toUpperCase();
+        }
+
+        function isValidVoterId(value) {
+          return /^[A-Z]{3}[0-9]{7}$/.test(value);
         }
 
         function goToNextPage() {
@@ -143,6 +154,74 @@
           } finally {
             verifyBtn.disabled = false;
             verifyBtn.textContent = "Verify PAN";
+          }
+        }
+
+        async function verifyVoterId() {
+          const voterIdInputEl = document.getElementById("voterId");
+          const verifyBtn = document.getElementById("voterVerifyBtn");
+          const resultEl = document.getElementById("voterResult");
+          const nextBtn = document.getElementById("panNextBtn");
+
+          const voterIdInput = normalizeVoterId(voterIdInputEl.value);
+          voterIdInputEl.value = voterIdInput;
+          nextBtn.style.display = "none";
+
+          if (!isValidVoterId(voterIdInput)) {
+            resultEl.textContent = "Enter a valid Voter ID in format ABC1234567.";
+            return;
+          }
+
+          verifyBtn.disabled = true;
+          verifyBtn.textContent = "Verifying...";
+          resultEl.textContent = "Verifying Voter ID...";
+
+          try {
+            const response = await fetch(getPanApiBase() + "/api/v1/verify/voter-id", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                voterId: voterIdInput
+              })
+            });
+
+            const rawBody = await response.text();
+            let result = {};
+
+            try {
+              result = rawBody ? JSON.parse(rawBody) : {};
+            } catch (parseError) {
+              result = { error: "Unexpected response from Voter ID API", raw: rawBody };
+            }
+
+            resultEl.textContent = JSON.stringify(result, null, 2);
+
+            if (!response.ok || result.success === false) {
+              const errorMessage = result.error || result.message || "Voter ID verification failed.";
+              resultEl.textContent += "\n\n" + errorMessage;
+              return;
+            }
+
+            sessionStorage.setItem("voterIdVerification", JSON.stringify({
+              voterId: voterIdInput,
+              verifiedAt: new Date().toISOString(),
+              response: result
+            }));
+
+            nextBtn.style.display = "inline-block";
+            resultEl.textContent += "\n\nVoter ID verified successfully. Redirecting to next page...";
+
+            setTimeout(function() {
+              goToNextPage();
+            }, 1500);
+          } catch (error) {
+            resultEl.textContent = "Unable to connect to Voter ID verification API.";
+            console.error(error);
+          } finally {
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = "Verify Voter ID";
           }
         }
         </script>

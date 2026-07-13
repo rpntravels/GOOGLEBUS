@@ -6,26 +6,49 @@ let isAdmin = false;
 function ensurePanVerified() {
     const fallbackUrl = '../index.html';
     const rawSession = sessionStorage.getItem('panVerification');
+    const rawVoterSession = sessionStorage.getItem('voterIdVerification');
 
-    if (!rawSession) {
+    if (!rawSession && !rawVoterSession) {
         window.location.replace(fallbackUrl);
         return false;
     }
 
     try {
-        const parsed = JSON.parse(rawSession);
-        const verifiedAt = new Date(parsed.verifiedAt || '').getTime();
-        const now = Date.now();
-        const isRecent = Number.isFinite(verifiedAt) && (now - verifiedAt) <= (30 * 60 * 1000);
-        const hasPan = typeof parsed.pan === 'string' && parsed.pan.length === 10;
+        var now = Date.now();
+        var isPanValid = false;
+        var isVoterValid = false;
 
-        if (!isRecent || !hasPan) {
-            sessionStorage.removeItem('panVerification');
+        if (rawSession) {
+            const panParsed = JSON.parse(rawSession);
+            const panVerifiedAt = new Date(panParsed.verifiedAt || '').getTime();
+            const isPanRecent = Number.isFinite(panVerifiedAt) && (now - panVerifiedAt) <= (30 * 60 * 1000);
+            const hasPan = typeof panParsed.pan === 'string' && panParsed.pan.length === 10;
+            isPanValid = isPanRecent && hasPan;
+
+            if (!isPanValid) {
+                sessionStorage.removeItem('panVerification');
+            }
+        }
+
+        if (rawVoterSession) {
+            const voterParsed = JSON.parse(rawVoterSession);
+            const voterVerifiedAt = new Date(voterParsed.verifiedAt || '').getTime();
+            const isVoterRecent = Number.isFinite(voterVerifiedAt) && (now - voterVerifiedAt) <= (30 * 60 * 1000);
+            const hasVoterId = typeof voterParsed.voterId === 'string' && /^[A-Z]{3}[0-9]{7}$/.test(voterParsed.voterId);
+            isVoterValid = isVoterRecent && hasVoterId;
+
+            if (!isVoterValid) {
+                sessionStorage.removeItem('voterIdVerification');
+            }
+        }
+
+        if (!isPanValid && !isVoterValid) {
             window.location.replace(fallbackUrl);
             return false;
         }
     } catch (error) {
         sessionStorage.removeItem('panVerification');
+        sessionStorage.removeItem('voterIdVerification');
         window.location.replace(fallbackUrl);
         return false;
     }
