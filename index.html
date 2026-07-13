@@ -85,6 +85,20 @@
           return /^[A-Z]{3}[0-9]{7}$/.test(value);
         }
 
+        function getVerificationErrorMessage(result, label) {
+          const details = result && result.details ? result.details : {};
+          const nestedError = details && details.error ? details.error : {};
+          const statusCode = details.statusCode || result.statusCode;
+          const detailsMessage = details.message || '';
+
+          if (statusCode === 403 && /ip\s+not\s+allowed/i.test(detailsMessage)) {
+            const clientIp = nestedError.clientIP || nestedError.clientIp || 'unknown';
+            return label + " verification failed: upstream IP is not allowlisted (Client IP: " + clientIp + ").";
+          }
+
+          return result.error || result.message || detailsMessage || (label + " verification failed.");
+        }
+
         function goToNextPage() {
           window.location.href = getNextPageUrl();
         }
@@ -131,7 +145,7 @@
             resultEl.textContent = JSON.stringify(result, null, 2);
 
             if (!response.ok || result.success === false) {
-              const errorMessage = result.error || result.message || "PAN verification failed.";
+              const errorMessage = getVerificationErrorMessage(result, "PAN");
               resultEl.textContent += "\n\n" + errorMessage;
               return;
             }
@@ -199,7 +213,7 @@
             resultEl.textContent = JSON.stringify(result, null, 2);
 
             if (!response.ok || result.success === false) {
-              const errorMessage = result.error || result.message || "Voter ID verification failed.";
+              const errorMessage = getVerificationErrorMessage(result, "Voter ID");
               resultEl.textContent += "\n\n" + errorMessage;
               return;
             }
