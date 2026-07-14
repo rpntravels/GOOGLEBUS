@@ -7,8 +7,9 @@ function ensurePanVerified() {
     const fallbackUrl = '../index.html';
     const rawSession = sessionStorage.getItem('panVerification');
     const rawVoterSession = sessionStorage.getItem('voterIdVerification');
+    const rawOkycSession = sessionStorage.getItem('okycVerification');
 
-    if (!rawSession && !rawVoterSession) {
+    if (!rawSession && !rawVoterSession && !rawOkycSession) {
         window.location.replace(fallbackUrl);
         return false;
     }
@@ -17,6 +18,7 @@ function ensurePanVerified() {
         var now = Date.now();
         var isPanValid = false;
         var isVoterValid = false;
+        var isOkycValid = false;
 
         if (rawSession) {
             const panParsed = JSON.parse(rawSession);
@@ -42,13 +44,28 @@ function ensurePanVerified() {
             }
         }
 
-        if (!isPanValid && !isVoterValid) {
+        if (rawOkycSession) {
+            const okycParsed = JSON.parse(rawOkycSession);
+            const okycVerifiedAt = new Date(okycParsed.verifiedAt || '').getTime();
+            const isOkycRecent = Number.isFinite(okycVerifiedAt) && (now - okycVerifiedAt) <= (30 * 60 * 1000);
+            const hasSessionId = typeof okycParsed.sessionId === 'string' && okycParsed.sessionId.trim().length > 0;
+            const hasOtp = typeof okycParsed.otp === 'string' && /^\d{6}$/.test(okycParsed.otp);
+            const hasAadhaar = typeof okycParsed.aadhaarNumber === 'string' && /^\d{12}$/.test(okycParsed.aadhaarNumber);
+            isOkycValid = isOkycRecent && hasSessionId && hasOtp && hasAadhaar;
+
+            if (!isOkycValid) {
+                sessionStorage.removeItem('okycVerification');
+            }
+        }
+
+        if (!isPanValid && !isVoterValid && !isOkycValid) {
             window.location.replace(fallbackUrl);
             return false;
         }
     } catch (error) {
         sessionStorage.removeItem('panVerification');
         sessionStorage.removeItem('voterIdVerification');
+        sessionStorage.removeItem('okycVerification');
         window.location.replace(fallbackUrl);
         return false;
     }

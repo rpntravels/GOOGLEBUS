@@ -60,6 +60,11 @@
         <input type="text" id="voterId" placeholder="Enter Voter ID (ABC1234567)" maxlength="10" autocomplete="off">
         <button id="voterVerifyBtn" onclick="verifyVoterId()">Verify Voter ID</button>
         <pre id="voterResult"></pre>
+        <input type="text" id="okycSessionId" placeholder="Enter OKYC Session ID" autocomplete="off">
+        <input type="text" id="okycOtp" placeholder="Enter OTP" maxlength="6" autocomplete="off">
+        <input type="text" id="okycAadhaar" placeholder="Enter Aadhaar Number" maxlength="12" autocomplete="off">
+        <button id="okycVerifyBtn" onclick="verifyOkyc()">Verify OKYC</button>
+        <pre id="okycResult"></pre>
         <script>
         function getPanApiBase() {
           return window.location.protocol === "file:" ? "http://localhost:3000" : "";
@@ -83,6 +88,26 @@
 
         function isValidVoterId(value) {
           return /^[A-Z]{3}[0-9]{7}$/.test(value);
+        }
+
+        function normalizeOkycSessionId(value) {
+          return (value || "").trim();
+        }
+
+        function normalizeOtp(value) {
+          return (value || "").replace(/\s+/g, "");
+        }
+
+        function normalizeAadhaar(value) {
+          return (value || "").replace(/\D+/g, "");
+        }
+
+        function isValidOtp(value) {
+          return /^\d{6}$/.test(value);
+        }
+
+        function isValidAadhaar(value) {
+          return /^\d{12}$/.test(value);
         }
 
         function getVerificationErrorMessage(result, label) {
@@ -236,6 +261,95 @@
           } finally {
             verifyBtn.disabled = false;
             verifyBtn.textContent = "Verify Voter ID";
+          }
+        }
+
+        async function verifyOkyc() {
+          const sessionIdEl = document.getElementById("okycSessionId");
+          const otpEl = document.getElementById("okycOtp");
+          const aadhaarEl = document.getElementById("okycAadhaar");
+          const verifyBtn = document.getElementById("okycVerifyBtn");
+          const resultEl = document.getElementById("okycResult");
+          const nextBtn = document.getElementById("panNextBtn");
+
+          const sessionId = normalizeOkycSessionId(sessionIdEl.value);
+          const otp = normalizeOtp(otpEl.value);
+          const aadhaarNumber = normalizeAadhaar(aadhaarEl.value);
+
+          sessionIdEl.value = sessionId;
+          otpEl.value = otp;
+          aadhaarEl.value = aadhaarNumber;
+          nextBtn.style.display = "none";
+
+          if (!sessionId) {
+            resultEl.textContent = "Session ID is required.";
+            return;
+          }
+
+          if (!isValidOtp(otp)) {
+            resultEl.textContent = "Enter a valid 6-digit OTP.";
+            return;
+          }
+
+          if (!isValidAadhaar(aadhaarNumber)) {
+            resultEl.textContent = "Enter a valid 12-digit Aadhaar number.";
+            return;
+          }
+
+          verifyBtn.disabled = true;
+          verifyBtn.textContent = "Verifying...";
+          resultEl.textContent = "Verifying OKYC...";
+
+          try {
+            const response = await fetch(getPanApiBase() + "/api/v1/verify/okyc/verify", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                sessionId: sessionId,
+                otp: otp,
+                aadhaarNumber: aadhaarNumber
+              })
+            });
+
+            const rawBody = await response.text();
+            let result = {};
+
+            try {
+              result = rawBody ? JSON.parse(rawBody) : {};
+            } catch (parseError) {
+              result = { error: "Unexpected response from OKYC API", raw: rawBody };
+            }
+
+            resultEl.textContent = JSON.stringify(result, null, 2);
+
+            if (!response.ok || result.success === false) {
+              const errorMessage = getVerificationErrorMessage(result, "OKYC");
+              resultEl.textContent += "\n\n" + errorMessage;
+              return;
+            }
+
+            sessionStorage.setItem("okycVerification", JSON.stringify({
+              sessionId: sessionId,
+              otp: otp,
+              aadhaarNumber: aadhaarNumber,
+              verifiedAt: new Date().toISOString(),
+              response: result
+            }));
+
+            nextBtn.style.display = "inline-block";
+            resultEl.textContent += "\n\nOKYC verified successfully. Redirecting to next page...";
+
+            setTimeout(function() {
+              goToNextPage();
+            }, 1500);
+          } catch (error) {
+            resultEl.textContent = "Unable to connect to OKYC verification API.";
+            console.error(error);
+          } finally {
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = "Verify OKYC";
           }
         }
         </script>
