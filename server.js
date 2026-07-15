@@ -80,6 +80,11 @@ function logVerificationIpContext(label, req, details) {
     console.warn('[' + label + '] verification failed - requestIp=' + (requestIp || 'unknown') + ', upstreamClientIP=' + (upstreamClientIp || 'unknown') + ', requestId=' + (requestId || 'n/a'));
 }
 
+function logIncomingVerificationRequest(label, req) {
+    var requestIp = getRequestIp(req);
+    console.log('[' + label + '] incoming verification request - requestIp=' + (requestIp || 'unknown'));
+}
+
 function getVerificationDiagnostics(req) {
     var allowedIps = getAllowedIps();
     var requestIp = getRequestIp(req);
@@ -192,6 +197,8 @@ app.post('/api/chat', function(req, res) {
 });
 
 function handlePanVerification(req, res) {
+    logIncomingVerificationRequest('PAN', req);
+
     var pan = (req.body.pan || '').toString().trim().toUpperCase();
     var merchantId = process.env.CGEPY_MERCHANT_ID || process.env.CGPEY_MERCHANT_ID;
     var apiKey = process.env.CGEPY_API_KEY || process.env.CGPEY_API_KEY;
@@ -265,6 +272,8 @@ function handlePanVerification(req, res) {
 }
 
 function handleVoterIdVerification(req, res) {
+    logIncomingVerificationRequest('VOTER_ID', req);
+
     var voterId = (req.body.voterId || '').toString().trim().toUpperCase();
     var merchantId = process.env.CGEPY_MERCHANT_ID || process.env.CGPEY_MERCHANT_ID;
     var apiKey = process.env.CGEPY_API_KEY || process.env.CGPEY_API_KEY;
@@ -338,6 +347,8 @@ function handleVoterIdVerification(req, res) {
 }
 
 function handleOkycVerification(req, res) {
+    logIncomingVerificationRequest('OKYC', req);
+
     var sessionId = (req.body.sessionId || '').toString().trim();
     var otp = (req.body.otp || '').toString().trim();
     var aadhaarNumber = (req.body.aadhaarNumber || '').toString().trim();
@@ -417,6 +428,8 @@ function handleOkycVerification(req, res) {
 }
 
 function handleOkycInitiate(req, res) {
+    logIncomingVerificationRequest('OKYC_INITIATE', req);
+
     var aadhaarNumber = (req.body.aadhaarNumber || '').toString().trim();
     var merchantId = process.env.CGEPY_MERCHANT_ID || process.env.CGPEY_MERCHANT_ID;
     var apiKey = process.env.CGEPY_API_KEY || process.env.CGPEY_API_KEY;
@@ -492,6 +505,8 @@ function handleOkycInitiate(req, res) {
 }
 
 function handleCriminalVerification(req, res) {
+    logIncomingVerificationRequest('CRIMINAL_VERIFICATION', req);
+
     var name = (req.body.name || '').toString().trim();
     var address = (req.body.address || '').toString().trim();
     var merchantId = process.env.CGEPY_MERCHANT_ID || process.env.CGPEY_MERCHANT_ID;

@@ -46,6 +46,11 @@ SECRET_KEY = "YOUR_SECRET_KEY"
 
 @app.route("/verify-pan", methods=["POST"])
 def verify_pan():
+    client_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
+    if client_ip and "," in client_ip:
+        client_ip = client_ip.split(",")[0].strip()
+    print(client_ip)
+
     pan = request.json.get("pan")
 
     url = "https://verify.cgpey.com/api/v1/verify/pan"
