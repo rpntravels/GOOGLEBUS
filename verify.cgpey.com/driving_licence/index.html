@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driving Licence Verification</title>
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <main class="container">
+    <nav class="nav-links" aria-label="Verification pages">
+      <a href="../index.html">Home</a>
+      <a href="../pan/index.html">PAN Verification</a>
+      <a href="./index.html" class="active">Driving Licence</a>
+      <a href="../face_match/index.html">Face Match</a>
+    </nav>
+
+    <h1>Driving Licence Verification</h1>
+    <p class="subtitle">Verify licence number and DOB via <code>/api/v1/verify/driving_licence</code>.</p>
+
+    <form id="drivingLicenceForm" class="verify-form">
+      <label for="licenceNumberInput">Licence Number</label>
+      <input
+        id="licenceNumberInput"
+        name="licence_number"
+        type="text"
+        placeholder="MH4720190020741"
+        autocomplete="off"
+        required
+      />
+
+      <label for="dobInput">Date of Birth</label>
+      <input
+        id="dobInput"
+        name="dob"
+        type="date"
+        required
+      />
+
+      <button id="verifyDrivingLicenceBtn" type="submit">Verify Driving Licence</button>
+    </form>
+
+    <p id="status" aria-live="polite"></p>
+    <pre id="result" aria-live="polite"></pre>
+  </main>
+  <script src="../script.js"></script>
+</body>
+</html>

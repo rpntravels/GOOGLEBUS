@@ -1,5 +1,8 @@
 const panForm = document.getElementById('panForm');
 const panInput = document.getElementById('panInput');
+const drivingLicenceForm = document.getElementById('drivingLicenceForm');
+const licenceNumberInput = document.getElementById('licenceNumberInput');
+const dobInput = document.getElementById('dobInput');
 const faceMatchForm = document.getElementById('faceMatchForm');
 const image1Input = document.getElementById('image1Input');
 const image2Input = document.getElementById('image2Input');
@@ -16,6 +19,23 @@ function normalizePan(value) {
 
 function isValidPan(value) {
   return /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(value);
+}
+
+function normalizeLicenceNumber(value) {
+  return (value || '').replace(/\s+/g, '').toUpperCase();
+}
+
+function isValidDob(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const date = new Date(value + 'T00:00:00');
+  if (Number.isNaN(date.getTime())) {
+    return false;
+  }
+
+  return date.toISOString().slice(0, 10) === value;
 }
 
 function setStatus(message, tone) {
@@ -59,6 +79,54 @@ panForm?.addEventListener('submit', async function(event) {
     }
 
     setStatus('PAN verification request completed.', 'ok');
+  } catch (error) {
+    setStatus('Unable to reach verification API.', 'err');
+    resultEl.textContent = error && error.message ? error.message : 'Unexpected error';
+  }
+});
+
+drivingLicenceForm?.addEventListener('submit', async function(event) {
+  event.preventDefault();
+
+  const licenceNumber = normalizeLicenceNumber(licenceNumberInput.value);
+  const dob = (dobInput.value || '').trim();
+
+  licenceNumberInput.value = licenceNumber;
+  resultEl.textContent = '';
+
+  if (!licenceNumber) {
+    setStatus('Enter a valid licence number.', 'err');
+    return;
+  }
+
+  if (!isValidDob(dob)) {
+    setStatus('Enter DOB in YYYY-MM-DD format.', 'err');
+    return;
+  }
+
+  setStatus('Verifying...', 'info');
+
+  try {
+    const response = await fetch(getApiBase() + '/api/v1/verify/driving_licence', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        licence_number: licenceNumber,
+        dob: dob
+      })
+    });
+
+    const data = await response.json();
+    resultEl.textContent = JSON.stringify(data, null, 2);
+
+    if (!response.ok) {
+      setStatus(data.error || 'Verification failed.', 'err');
+      return;
+    }
+
+    setStatus('Driving licence verification request completed.', 'ok');
   } catch (error) {
     setStatus('Unable to reach verification API.', 'err');
     resultEl.textContent = error && error.message ? error.message : 'Unexpected error';

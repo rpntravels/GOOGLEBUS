@@ -6,16 +6,19 @@ This directory was added to provide a starter scaffold for `verify.cgpey.com`.
 
 - `index.html` – root landing page with links to verification services
 - `pan/index.html` – PAN verification page
+- `driving_licence/index.html` – driving licence verification page
 - `face_match/index.html` – face match page using the backend proxy route
 - `face_match/local-proxy-example.html` – standalone local proxy example for face match uploads
-- `script.js` – shared PAN and face match interaction logic
+- `script.js` – shared PAN, driving licence, and face match interaction logic
 - `style.css` – shared styling for verify pages
 
 ## Links
 
 - Home page links to PAN page
+- Home page links to Driving Licence page
 - Home page links to Face Match page
 - PAN page links to Home page
+- Driving Licence page links to Home page
 - Face Match page links to the standalone local proxy example
 
 ## Local Proxy Usage
