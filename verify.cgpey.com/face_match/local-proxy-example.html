@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Face Match Local Proxy Example</title>
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <main class="container">
+    <nav class="nav-links" aria-label="Verification pages">
+      <a href="../index.html">Home</a>
+      <a href="./index.html">Face Match</a>
+      <a href="./local-proxy-example.html" class="active">Local Proxy Example</a>
+    </nav>
+
+    <h1>Face Match Local Proxy Example</h1>
+    <p class="subtitle">This example posts image files to <code>/api/v1/verify/face_match</code> on the same site.</p>
+    <p class="subtitle">If you open this file directly from disk, it falls back to <code>http://localhost:3000</code>.</p>
+
+    <form id="faceMatchForm" class="verify-form" enctype="multipart/form-data">
+      <label for="image1Input">Person Image</label>
+      <input id="image1Input" name="image1" type="file" accept="image/*" required />
+
+      <label for="image2Input">ID Card Image</label>
+      <input id="image2Input" name="image2" type="file" accept="image/*" required />
+
+      <button type="submit">Verify Face Match</button>
+    </form>
+
+    <p id="status" aria-live="polite"></p>
+    <pre id="result" aria-live="polite"></pre>
+
+    <pre>fetch((window.location.protocol === 'file:' ? 'http://localhost:3000' : '') + '/api/v1/verify/face_match', {
+  method: 'POST',
+  body: formData
+});</pre>
+  </main>
+  <script src="../script.js"></script>
+</body>
+</html>

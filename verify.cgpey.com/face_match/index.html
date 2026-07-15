@@ -15,7 +15,9 @@
     </nav>
 
     <h1>Face Match Verification</h1>
-    <p class="subtitle">Upload a person photo and ID card photo for <code>/api/v1/verify/face_match</code>.</p>
+    <p class="subtitle">Upload a person photo and ID card photo through the local proxy endpoint <code>/api/v1/verify/face_match</code>.</p>
+    <p class="subtitle">This page sends files to your backend so browser clients do not need to expose CGPEY credentials.</p>
+    <p class="subtitle"><a href="./local-proxy-example.html">Open the standalone local proxy example</a></p>
 
     <form id="faceMatchForm" class="verify-form" enctype="multipart/form-data">
       <label for="image1Input">Person Image</label>
