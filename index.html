@@ -39,7 +39,6 @@
         <button id="calendarBtn" class="nav-btn">View Event Calendar</button>
         <button id="emiBtn" class="nav-btn">💰 EMI Calculator</button>
         <button id="mapBtn" class="nav-btn">🗺️ View Route Map</button>
-        <a href="./verify.cgpey.com/driving_licence/index.html" class="nav-btn driving-license-btn">🚗 Driving Licence Verification</a>
 
         <a href="https://fastag.sbi.bank.in/" target="_blank" class="nav-btn fastag-btn">🏷️ FASTag SBI</a>
         <a href="https://www.irctc.co.in/nget/train-search" target="_blank" class="nav-btn train-btn">🚂 Train Booking</a>
@@ -61,6 +60,10 @@
         <input type="text" id="voterId" placeholder="Enter Voter ID (ABC1234567)" maxlength="10" autocomplete="off">
         <button id="voterVerifyBtn" onclick="verifyVoterId()">Verify Voter ID</button>
         <pre id="voterResult"></pre>
+        <input type="text" id="drivingLicenceNumber" placeholder="Enter Driving Licence Number" autocomplete="off">
+        <input type="date" id="drivingLicenceDob" placeholder="Date of Birth">
+        <button id="drivingLicenceVerifyBtn" onclick="verifyDrivingLicence()">Verify Driving Licence</button>
+        <pre id="drivingLicenceResult"></pre>
         <input type="text" id="okycSessionId" placeholder="Enter OKYC Session ID" autocomplete="off">
         <input type="text" id="okycOtp" placeholder="Enter OTP" maxlength="6" autocomplete="off">
         <input type="text" id="okycAadhaar" placeholder="Enter Aadhaar Number" maxlength="12" autocomplete="off">
