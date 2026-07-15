@@ -58,10 +58,14 @@ const upiLink = document.getElementById('upiLink');
 document.addEventListener('DOMContentLoaded', () => {
     loadEvents();
     loadTodos();
-    renderCalendar();
-    renderEvents();
+
+    if (daysGrid && currentMonthEl) {
+        renderCalendar();
+        renderEvents();
+        setupEventListeners();
+    }
+
     renderTodos();
-    setupEventListeners();
     setupNavigation();
     setupPayment();
     displayUPIId();
@@ -86,17 +90,24 @@ function saveEvents() {
 function setupNavigation() {
     if (calendarBtn) {
         calendarBtn.addEventListener('click', () => {
-            travelsSection.classList.add('hidden');
-            calendarSection.classList.remove('hidden');
-            renderCalendar();
-            renderEvents();
+            if (travelsSection && calendarSection) {
+                travelsSection.classList.add('hidden');
+                calendarSection.classList.remove('hidden');
+                renderCalendar();
+                renderEvents();
+                return;
+            }
+
+            window.location.href = 'next.html/index.html';
         });
     }
 
     if (homeBtn) {
         homeBtn.addEventListener('click', () => {
-            calendarSection.classList.add('hidden');
-            travelsSection.classList.remove('hidden');
+            if (calendarSection && travelsSection) {
+                calendarSection.classList.add('hidden');
+                travelsSection.classList.remove('hidden');
+            }
         });
     }
 
@@ -107,16 +118,23 @@ function setupNavigation() {
 
     if (mapBtn) {
         mapBtn.addEventListener('click', () => {
-            travelsSection.classList.add('hidden');
-            if (calendarSection) calendarSection.classList.add('hidden');
-            mapSection.classList.remove('hidden');
+            if (travelsSection && mapSection) {
+                travelsSection.classList.add('hidden');
+                if (calendarSection) calendarSection.classList.add('hidden');
+                mapSection.classList.remove('hidden');
+                return;
+            }
+
+            window.location.href = 'MAP/index.html';
         });
     }
 
     if (mapHomeBtn) {
         mapHomeBtn.addEventListener('click', () => {
-            mapSection.classList.add('hidden');
-            travelsSection.classList.remove('hidden');
+            if (mapSection && travelsSection) {
+                mapSection.classList.add('hidden');
+                travelsSection.classList.remove('hidden');
+            }
         });
     }
 
@@ -124,15 +142,20 @@ function setupNavigation() {
     const emiBtn = document.getElementById('emiBtn');
     if (emiBtn) {
         emiBtn.addEventListener('click', () => {
-            window.open('EMI CALCULATOR/index.html', '_blank');
+            window.location.href = 'EMI CALCULATOR/index.html';
         });
     }
 }
 
 // Setup Event Listeners
 function setupEventListeners() {
-    prevMonthBtn.addEventListener('click', () => changeMonth(-1));
-    nextMonthBtn.addEventListener('click', () => changeMonth(1));
+    if (prevMonthBtn) {
+        prevMonthBtn.addEventListener('click', () => changeMonth(-1));
+    }
+
+    if (nextMonthBtn) {
+        nextMonthBtn.addEventListener('click', () => changeMonth(1));
+    }
     
     if (addEventBtn) {
         addEventBtn.addEventListener('click', () => openModal());
@@ -144,23 +167,31 @@ function setupEventListeners() {
 
     closeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            eventModal.style.display = 'none';
-            adminModal.style.display = 'none';
+            if (eventModal) {
+                eventModal.style.display = 'none';
+            }
+            if (adminModal) {
+                adminModal.style.display = 'none';
+            }
         });
     });
 
     cancelBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            eventModal.style.display = 'none';
-            adminModal.style.display = 'none';
+            if (eventModal) {
+                eventModal.style.display = 'none';
+            }
+            if (adminModal) {
+                adminModal.style.display = 'none';
+            }
         });
     });
 
     window.addEventListener('click', (e) => {
-        if (e.target === eventModal) {
+        if (eventModal && e.target === eventModal) {
             eventModal.style.display = 'none';
         }
-        if (e.target === adminModal) {
+        if (adminModal && e.target === adminModal) {
             adminModal.style.display = 'none';
         }
     });
@@ -182,6 +213,8 @@ function changeMonth(delta) {
 
 // Render Calendar
 function renderCalendar() {
+    if (!daysGrid || !currentMonthEl) return;
+
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
@@ -233,7 +266,7 @@ function createDayElement(day, isOtherMonth, isToday = false, year, month) {
     dayNumber.textContent = day;
     dayEl.appendChild(dayNumber);
 
-    if (!isOtherMonth && year && month) {
+    if (!isOtherMonth && year !== undefined && month !== undefined) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const dayEvents = events.filter(e => e.date === dateStr);
 
