@@ -72,7 +72,85 @@
         <pre id="criminalResult"></pre>
         <script>
         function getPanApiBase() {
-          return window.location.protocol === "file:" ? "http://localhost:3000" : "";
+          if (window.location.protocol === "file:") {
+            return "http://localhost:3000";
+          }
+
+          const host = window.location.hostname;
+          const isLocalhost = host === "localhost" || host === "127.0.0.1";
+
+          if (isLocalhost && window.location.port !== "3000") {
+            return "http://localhost:3000";
+          }
+
+          return "";
+        }
+
+        function buildVerificationPathCandidates(path) {
+          const paths = [path];
+
+          if (path.indexOf("/api/v1/verify/") === 0) {
+            paths.push(path.replace("/api/v1/verify/", "/api/verify/"));
+          }
+
+          return paths;
+        }
+
+        function buildVerificationBaseCandidates() {
+          const bases = [];
+          const preferredBase = getPanApiBase();
+
+          if (preferredBase) {
+            bases.push(preferredBase);
+          }
+
+          bases.push("");
+
+          if (window.location.protocol === "https:" && window.location.hostname !== "verify.cgpey.com") {
+            bases.push("https://verify.cgpey.com");
+          }
+
+          return Array.from(new Set(bases));
+        }
+
+        async function postVerificationRequest(path, payload) {
+          const pathCandidates = buildVerificationPathCandidates(path);
+          const baseCandidates = buildVerificationBaseCandidates();
+          let lastNetworkError = null;
+          let notFoundResponse = null;
+
+          for (const base of baseCandidates) {
+            for (const candidatePath of pathCandidates) {
+              try {
+                const response = await fetch(base + candidatePath, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify(payload)
+                });
+
+                if (response.status === 404) {
+                  notFoundResponse = notFoundResponse || response;
+                  continue;
+                }
+
+                return response;
+              } catch (error) {
+                lastNetworkError = error;
+              }
+            }
+          }
+
+          if (notFoundResponse) {
+            return notFoundResponse;
+          }
+
+          if (lastNetworkError) {
+            throw lastNetworkError;
+          }
+
+          throw new Error("Unable to connect to verification API");
         }
 
         function getNextPageUrl() {
@@ -171,14 +249,8 @@
           resultEl.textContent = "Initiating OKYC...";
 
           try {
-            const response = await fetch(getPanApiBase() + "/api/v1/verify/okyc/initiate", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                aadhaarNumber: aadhaarNumber
-              })
+            const response = await postVerificationRequest("/api/v1/verify/okyc/initiate", {
+              aadhaarNumber: aadhaarNumber
             });
 
             const rawBody = await response.text();
@@ -234,14 +306,8 @@
           resultEl.textContent = "Verifying PAN...";
 
           try {
-            const response = await fetch(getPanApiBase() + "/api/v1/verify/pan", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                pan: panInput
-              })
+            const response = await postVerificationRequest("/api/v1/verify/pan", {
+              pan: panInput
             });
 
             const rawBody = await response.text();
@@ -302,14 +368,8 @@
           resultEl.textContent = "Verifying Voter ID...";
 
           try {
-            const response = await fetch(getPanApiBase() + "/api/v1/verify/voter-id", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                voterId: voterIdInput
-              })
+            const response = await postVerificationRequest("/api/v1/verify/voter-id", {
+              voterId: voterIdInput
             });
 
             const rawBody = await response.text();
@@ -387,16 +447,10 @@
           resultEl.textContent = "Verifying OKYC...";
 
           try {
-            const response = await fetch(getPanApiBase() + "/api/v1/verify/okyc/verify", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                sessionId: sessionId,
-                otp: otp,
-                aadhaarNumber: aadhaarNumber
-              })
+            const response = await postVerificationRequest("/api/v1/verify/okyc/verify", {
+              sessionId: sessionId,
+              otp: otp,
+              aadhaarNumber: aadhaarNumber
             });
 
             const rawBody = await response.text();
@@ -468,15 +522,9 @@
           resultEl.textContent = "Verifying criminal record...";
 
           try {
-            const response = await fetch(getPanApiBase() + "/api/v1/verify/criminal_verification", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                name: name,
-                address: address
-              })
+            const response = await postVerificationRequest("/api/v1/verify/criminal_verification", {
+              name: name,
+              address: address
             });
 
             const rawBody = await response.text();
