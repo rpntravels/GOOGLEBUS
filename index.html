@@ -70,6 +70,10 @@
         <textarea id="criminalAddress" placeholder="Enter Full Address" rows="3"></textarea>
         <button id="criminalVerifyBtn" onclick="verifyCriminalVerification()">Verify Criminal Record</button>
         <pre id="criminalResult"></pre>
+        <input type="file" id="faceImage1" accept="image/*">
+        <input type="file" id="faceImage2" accept="image/*">
+        <button id="faceMatchVerifyBtn" onclick="verifyFaceMatch()">Verify Face Match</button>
+        <pre id="faceMatchResult"></pre>
         <script>
         function getPanApiBase() {
           if (window.location.protocol === "file:") {
@@ -128,6 +132,43 @@
                     "Content-Type": "application/json"
                   },
                   body: JSON.stringify(payload)
+                });
+
+                if (response.status === 404) {
+                  notFoundResponse = notFoundResponse || response;
+                  continue;
+                }
+
+                return response;
+              } catch (error) {
+                lastNetworkError = error;
+              }
+            }
+          }
+
+          if (notFoundResponse) {
+            return notFoundResponse;
+          }
+
+          if (lastNetworkError) {
+            throw lastNetworkError;
+          }
+
+          throw new Error("Unable to connect to verification API");
+        }
+
+        async function postVerificationFormRequest(path, formData) {
+          const pathCandidates = buildVerificationPathCandidates(path);
+          const baseCandidates = buildVerificationBaseCandidates();
+          let lastNetworkError = null;
+          let notFoundResponse = null;
+
+          for (const base of baseCandidates) {
+            for (const candidatePath of pathCandidates) {
+              try {
+                const response = await fetch(base + candidatePath, {
+                  method: "POST",
+                  body: formData
                 });
 
                 if (response.status === 404) {
@@ -563,6 +604,54 @@
           } finally {
             verifyBtn.disabled = false;
             verifyBtn.textContent = "Verify Criminal Record";
+          }
+        }
+
+        async function verifyFaceMatch() {
+          const image1El = document.getElementById("faceImage1");
+          const image2El = document.getElementById("faceImage2");
+          const verifyBtn = document.getElementById("faceMatchVerifyBtn");
+          const resultEl = document.getElementById("faceMatchResult");
+
+          const image1 = image1El.files && image1El.files[0];
+          const image2 = image2El.files && image2El.files[0];
+
+          if (!image1 || !image2) {
+            resultEl.textContent = "Select both person image and ID card image.";
+            return;
+          }
+
+          const formData = new FormData();
+          formData.append("image1", image1);
+          formData.append("image2", image2);
+
+          verifyBtn.disabled = true;
+          verifyBtn.textContent = "Verifying...";
+          resultEl.textContent = "Verifying face match...";
+
+          try {
+            const response = await postVerificationFormRequest("/api/v1/verify/face_match", formData);
+            const rawBody = await response.text();
+            let result = {};
+
+            try {
+              result = rawBody ? JSON.parse(rawBody) : {};
+            } catch (parseError) {
+              result = { error: "Unexpected response from Face Match API", raw: rawBody };
+            }
+
+            resultEl.textContent = JSON.stringify(result, null, 2);
+
+            if (!response.ok || result.success === false) {
+              const errorMessage = getVerificationErrorMessage(result, "Face match");
+              resultEl.textContent += "\n\n" + errorMessage;
+            }
+          } catch (error) {
+            resultEl.textContent = "Unable to connect to Face Match verification API.";
+            console.error(error);
+          } finally {
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = "Verify Face Match";
           }
         }
         </script>

@@ -141,7 +141,9 @@ body {
 #okycOtp,
 #okycAadhaar,
 #criminalName,
-#criminalAddress {
+#criminalAddress,
+#faceImage1,
+#faceImage2 {
     display: block;
     width: min(560px, 100%);
     margin: 12px auto;
@@ -160,7 +162,9 @@ body {
 #okycOtp:focus,
 #okycAadhaar:focus,
 #criminalName:focus,
-#criminalAddress:focus {
+#criminalAddress:focus,
+#faceImage1:focus,
+#faceImage2:focus {
     outline: none;
     border-color: #1a73e8;
     box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
@@ -176,7 +180,8 @@ body {
 #voterVerifyBtn,
 #okycInitiateBtn,
 #okycVerifyBtn,
-#criminalVerifyBtn {
+#criminalVerifyBtn,
+#faceMatchVerifyBtn {
     margin: 8px 6px 10px;
     padding: 11px 18px;
     border: none;
@@ -193,7 +198,8 @@ body {
 #voterVerifyBtn:hover,
 #okycInitiateBtn:hover,
 #okycVerifyBtn:hover,
-#criminalVerifyBtn:hover {
+#criminalVerifyBtn:hover,
+#faceMatchVerifyBtn:hover {
     background: #1557b0;
     transform: translateY(-1px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
@@ -203,7 +209,8 @@ body {
 #voterVerifyBtn:disabled,
 #okycInitiateBtn:disabled,
 #okycVerifyBtn:disabled,
-#criminalVerifyBtn:disabled {
+#criminalVerifyBtn:disabled,
+#faceMatchVerifyBtn:disabled {
     opacity: 0.65;
     cursor: not-allowed;
     transform: none;
@@ -213,7 +220,8 @@ body {
 #panResult,
 #voterResult,
 #okycResult,
-#criminalResult {
+#criminalResult,
+#faceMatchResult {
     width: min(700px, 100%);
     margin: 10px auto 16px;
     padding: 12px;
