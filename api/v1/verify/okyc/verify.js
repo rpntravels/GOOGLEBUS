@@ -81,6 +81,23 @@ function logVerificationIpContext(req, details) {
   console.warn('[OKYC] verification failed - requestIp=' + (requestIp || 'unknown') + ', upstreamClientIP=' + (upstreamClientIp || 'unknown') + ', requestId=' + (requestId || 'n/a'));
 }
 
+function buildVerificationHeaders(req, merchantId, apiKey, secretKey) {
+  const requestIp = getRequestIp(req);
+  const headers = {
+    'Content-Type': 'application/json',
+    'x-merchant-id': merchantId,
+    'x-api-key': apiKey,
+    'x-secret-key': secretKey
+  };
+
+  if (requestIp) {
+    headers['x-forwarded-for'] = requestIp;
+    headers['x-real-ip'] = requestIp;
+  }
+
+  return headers;
+}
+
 module.exports = async function handler(req, res) {
   setCors(res);
 
@@ -130,12 +147,7 @@ module.exports = async function handler(req, res) {
   try {
     const response = await fetch(OKYC_VERIFY_API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-merchant-id': merchantId,
-        'x-api-key': apiKey,
-        'x-secret-key': secretKey
-      },
+      headers: buildVerificationHeaders(req, merchantId, apiKey, secretKey),
       body: JSON.stringify({
         sessionId: sessionId,
         otp: otp,

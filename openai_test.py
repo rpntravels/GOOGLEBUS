@@ -59,7 +59,9 @@ def verify_pan():
         "Content-Type": "application/json",
         "x-merchant-id": MERCHANT_ID,
         "x-api-key": API_KEY,
-        "x-secret-key": SECRET_KEY
+        "x-secret-key": SECRET_KEY,
+        "X-Forwarded-For": client_ip,
+        "X-Real-IP": client_ip
     }
 
     response = requests.post(

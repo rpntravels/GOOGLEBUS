@@ -85,6 +85,23 @@ function logIncomingVerificationRequest(label, req) {
     console.log('[' + label + '] incoming verification request - requestIp=' + (requestIp || 'unknown'));
 }
 
+function buildVerificationHeaders(req, merchantId, apiKey, secretKey) {
+    var requestIp = getRequestIp(req);
+    var headers = {
+        'Content-Type': 'application/json',
+        'x-merchant-id': merchantId,
+        'x-api-key': apiKey,
+        'x-secret-key': secretKey
+    };
+
+    if (requestIp) {
+        headers['x-forwarded-for'] = requestIp;
+        headers['x-real-ip'] = requestIp;
+    }
+
+    return headers;
+}
+
 function getVerificationDiagnostics(req) {
     var allowedIps = getAllowedIps();
     var requestIp = getRequestIp(req);
@@ -233,12 +250,7 @@ function handlePanVerification(req, res) {
 
     fetch(PAN_VERIFY_API_URL, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'x-merchant-id': merchantId,
-            'x-api-key': apiKey,
-            'x-secret-key': secretKey
-        },
+        headers: buildVerificationHeaders(req, merchantId, apiKey, secretKey),
         body: JSON.stringify({ pan: pan })
     })
     .then(function(response) {
@@ -308,12 +320,7 @@ function handleVoterIdVerification(req, res) {
 
     fetch(VOTER_VERIFY_API_URL, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'x-merchant-id': merchantId,
-            'x-api-key': apiKey,
-            'x-secret-key': secretKey
-        },
+        headers: buildVerificationHeaders(req, merchantId, apiKey, secretKey),
         body: JSON.stringify({ voterId: voterId })
     })
     .then(function(response) {
@@ -385,12 +392,7 @@ function handleOkycVerification(req, res) {
 
     fetch(OKYC_VERIFY_API_URL, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'x-merchant-id': merchantId,
-            'x-api-key': apiKey,
-            'x-secret-key': secretKey
-        },
+        headers: buildVerificationHeaders(req, merchantId, apiKey, secretKey),
         body: JSON.stringify({
             sessionId: sessionId,
             otp: otp,
@@ -464,12 +466,7 @@ function handleOkycInitiate(req, res) {
 
     fetch(OKYC_INITIATE_API_URL, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'x-merchant-id': merchantId,
-            'x-api-key': apiKey,
-            'x-secret-key': secretKey
-        },
+        headers: buildVerificationHeaders(req, merchantId, apiKey, secretKey),
         body: JSON.stringify({
             aadhaarNumber: aadhaarNumber
         })
@@ -542,12 +539,7 @@ function handleCriminalVerification(req, res) {
 
     fetch(CRIMINAL_VERIFY_API_URL, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'x-merchant-id': merchantId,
-            'x-api-key': apiKey,
-            'x-secret-key': secretKey
-        },
+        headers: buildVerificationHeaders(req, merchantId, apiKey, secretKey),
         body: JSON.stringify({
             name: name,
             address: address
