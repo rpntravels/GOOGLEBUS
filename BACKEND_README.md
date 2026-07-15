@@ -160,6 +160,34 @@ Request:
 2. Capture `sessionId` from response (frontend now auto-fills when present).
 3. Enter OTP and call `POST /api/v1/verify/okyc/verify` with `sessionId`, `otp`, and `aadhaarNumber`.
 
+### POST `/api/v1/verify/criminal_verification`
+Criminal verification proxy endpoint.
+
+Request:
+```json
+{
+    "name": "Rakesh Sharma",
+    "address": "Flat 12, MG Road, Bengaluru, Karnataka 560001"
+}
+```
+
+Local test command:
+```bash
+curl --location --fail-with-body http://localhost:3000/api/v1/verify/criminal_verification \
+    --header 'Content-Type: application/json' \
+    --data '{"name":"Rakesh Sharma","address":"Flat 12, MG Road, Bengaluru, Karnataka 560001"}'
+```
+
+For direct upstream testing:
+```bash
+curl --location --fail-with-body 'https://verify.cgpey.com/api/v1/verify/criminal_verification' \
+    --header 'Content-Type: application/json' \
+    --header 'x-merchant-id: <YOUR_MERCHANT_ID>' \
+    --header 'x-api-key: <YOUR_API_KEY>' \
+    --header 'x-secret-key: <YOUR_SECRET_KEY>' \
+    --data '{"name":"Rakesh Sharma","address":"Flat 12, MG Road, Bengaluru, Karnataka 560001"}'
+```
+
 ## Deployment Options
 
 ### Option 1: Render (Free)
@@ -179,6 +207,7 @@ Use `vercel.json` configuration for serverless deployment.
 
 For PAN verification API on Vercel, add these project environment variables:
 - `CGEPY_VERIFY_URL`
+- `CGEPY_CRIMINAL_VERIFY_URL`
 - `CGEPY_OKYC_INITIATE_URL`
 - `CGEPY_MERCHANT_ID`
 - `CGEPY_API_KEY`

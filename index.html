@@ -66,6 +66,10 @@
         <button id="okycInitiateBtn" onclick="initiateOkyc()">Initiate OKYC</button>
         <button id="okycVerifyBtn" onclick="verifyOkyc()">Verify OKYC</button>
         <pre id="okycResult"></pre>
+        <input type="text" id="criminalName" placeholder="Enter Full Name" autocomplete="off">
+        <textarea id="criminalAddress" placeholder="Enter Full Address" rows="3"></textarea>
+        <button id="criminalVerifyBtn" onclick="verifyCriminalVerification()">Verify Criminal Record</button>
+        <pre id="criminalResult"></pre>
         <script>
         function getPanApiBase() {
           return window.location.protocol === "file:" ? "http://localhost:3000" : "";
@@ -109,6 +113,10 @@
 
         function isValidAadhaar(value) {
           return /^\d{12}$/.test(value);
+        }
+
+        function normalizeCriminalText(value) {
+          return (value || "").replace(/\s+/g, " ").trim();
         }
 
         function extractOkycSessionId(result) {
@@ -428,6 +436,85 @@
           } finally {
             verifyBtn.disabled = false;
             verifyBtn.textContent = "Verify OKYC";
+          }
+        }
+
+        async function verifyCriminalVerification() {
+          const nameEl = document.getElementById("criminalName");
+          const addressEl = document.getElementById("criminalAddress");
+          const verifyBtn = document.getElementById("criminalVerifyBtn");
+          const resultEl = document.getElementById("criminalResult");
+          const nextBtn = document.getElementById("panNextBtn");
+
+          const name = normalizeCriminalText(nameEl.value);
+          const address = normalizeCriminalText(addressEl.value);
+
+          nameEl.value = name;
+          addressEl.value = address;
+          nextBtn.style.display = "none";
+
+          if (!name) {
+            resultEl.textContent = "Name is required.";
+            return;
+          }
+
+          if (!address) {
+            resultEl.textContent = "Address is required.";
+            return;
+          }
+
+          verifyBtn.disabled = true;
+          verifyBtn.textContent = "Verifying...";
+          resultEl.textContent = "Verifying criminal record...";
+
+          try {
+            const response = await fetch(getPanApiBase() + "/api/v1/verify/criminal_verification", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                name: name,
+                address: address
+              })
+            });
+
+            const rawBody = await response.text();
+            let result = {};
+
+            try {
+              result = rawBody ? JSON.parse(rawBody) : {};
+            } catch (parseError) {
+              result = { error: "Unexpected response from Criminal Verification API", raw: rawBody };
+            }
+
+            resultEl.textContent = JSON.stringify(result, null, 2);
+
+            if (!response.ok || result.success === false) {
+              const errorMessage = getVerificationErrorMessage(result, "Criminal verification");
+              resultEl.textContent += "\n\n" + errorMessage;
+              return;
+            }
+
+            sessionStorage.setItem("criminalVerification", JSON.stringify({
+              name: name,
+              address: address,
+              verifiedAt: new Date().toISOString(),
+              response: result
+            }));
+
+            nextBtn.style.display = "inline-block";
+            resultEl.textContent += "\n\nCriminal verification completed successfully. Redirecting to next page...";
+
+            setTimeout(function() {
+              goToNextPage();
+            }, 1500);
+          } catch (error) {
+            resultEl.textContent = "Unable to connect to Criminal Verification API.";
+            console.error(error);
+          } finally {
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = "Verify Criminal Record";
           }
         }
         </script>

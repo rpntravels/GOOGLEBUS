@@ -135,6 +135,100 @@ body {
     padding: 10px;
 }
 
+#pan,
+#voterId,
+#okycSessionId,
+#okycOtp,
+#okycAadhaar,
+#criminalName,
+#criminalAddress {
+    display: block;
+    width: min(560px, 100%);
+    margin: 12px auto;
+    padding: 12px 14px;
+    border: 2px solid #cfd8e3;
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background: #fff;
+}
+
+#pan:focus,
+#voterId:focus,
+#okycSessionId:focus,
+#okycOtp:focus,
+#okycAadhaar:focus,
+#criminalName:focus,
+#criminalAddress:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+}
+
+#criminalAddress {
+    resize: vertical;
+    min-height: 88px;
+    line-height: 1.4;
+}
+
+#panVerifyBtn,
+#voterVerifyBtn,
+#okycInitiateBtn,
+#okycVerifyBtn,
+#criminalVerifyBtn {
+    margin: 8px 6px 10px;
+    padding: 11px 18px;
+    border: none;
+    border-radius: 8px;
+    background: #1a73e8;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+#panVerifyBtn:hover,
+#voterVerifyBtn:hover,
+#okycInitiateBtn:hover,
+#okycVerifyBtn:hover,
+#criminalVerifyBtn:hover {
+    background: #1557b0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+#panVerifyBtn:disabled,
+#voterVerifyBtn:disabled,
+#okycInitiateBtn:disabled,
+#okycVerifyBtn:disabled,
+#criminalVerifyBtn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+#panResult,
+#voterResult,
+#okycResult,
+#criminalResult {
+    width: min(700px, 100%);
+    margin: 10px auto 16px;
+    padding: 12px;
+    text-align: left;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border-radius: 10px;
+    border: 1px solid #d8dfe7;
+    background: #ffffff;
+    color: #1c2b3a;
+    font-family: Consolas, Monaco, 'Courier New', monospace;
+    font-size: 13px;
+    min-height: 40px;
+}
+
 .call-text {
     font-size: 22px !important;
     color: #0e3b68 !important;
