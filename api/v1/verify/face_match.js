@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 
-const FACE_MATCH_VERIFY_API_URL = process.env.CGEPY_FACE_MATCH_URL || process.env.CGPEY_FACE_MATCH_URL || 'https://verify.cgpey.com/api/v1/verify/face_match';
+const FACE_MATCH_VERIFY_API_URL = process.env.CGEPY_FACE_MATCH_URL || process.env.CGPEY_FACE_MATCH_URL || '';
 
 function getRequestIp(req) {
   const forwardedFor = req.headers['x-forwarded-for'];
@@ -150,6 +150,13 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({
       success: false,
       error: 'CGEPY credentials are not configured on server'
+    });
+  }
+
+  if (!FACE_MATCH_VERIFY_API_URL) {
+    return res.status(500).json({
+      success: false,
+      error: 'CGEPY face match upstream URL is not configured on server. Set CGEPY_FACE_MATCH_URL to the working upstream endpoint.'
     });
   }
 

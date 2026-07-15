@@ -16,7 +16,7 @@ var VOTER_VERIFY_API_URL = process.env.CGEPY_VOTER_VERIFY_URL || process.env.CGP
 var CRIMINAL_VERIFY_API_URL = process.env.CGEPY_CRIMINAL_VERIFY_URL || process.env.CGPEY_CRIMINAL_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/criminal_verification';
 var OKYC_INITIATE_API_URL = process.env.CGEPY_OKYC_INITIATE_URL || process.env.CGPEY_OKYC_INITIATE_URL || 'https://verify.cgpey.com/api/v1/verify/okyc/initiate';
 var OKYC_VERIFY_API_URL = process.env.CGEPY_OKYC_VERIFY_URL || process.env.CGPEY_OKYC_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/okyc/verify';
-var FACE_MATCH_API_URL = process.env.CGEPY_FACE_MATCH_URL || process.env.CGPEY_FACE_MATCH_URL || 'https://verify.cgpey.com/api/v1/verify/face_match';
+var FACE_MATCH_API_URL = process.env.CGEPY_FACE_MATCH_URL=https://your-working-face-match-endpointCGEPY_FACE_MATCH_URL=https://your-working-face-match-endpointCGEPY_FACE_MATCH_URL=https://your-working-face-match-endpointCGEPY_FACE_MATCH_URL || process.env.CGPEY_FACE_MATCH_URL || '';
 var upload = multer({ storage: multer.memoryStorage() });
 
 function getRequestIp(req) {
@@ -122,7 +122,7 @@ function getVerificationDiagnostics(req) {
             criminalVerification: CRIMINAL_VERIFY_API_URL,
             okycInitiate: OKYC_INITIATE_API_URL,
             okycVerify: OKYC_VERIFY_API_URL,
-            faceMatch: FACE_MATCH_API_URL
+            faceMatch: FACE_MATCH_API_URL || 'not configured'
         },
         credentialsConfigured: {
             merchantId: !!(process.env.CGEPY_MERCHANT_ID || process.env.CGPEY_MERCHANT_ID),
@@ -614,6 +614,13 @@ function handleFaceMatchVerification(req, res) {
         return res.status(500).json({
             success: false,
             error: 'CGEPY credentials are not configured on server'
+        });
+    }
+
+    if (!FACE_MATCH_API_URL) {
+        return res.status(500).json({
+            success: false,
+            error: 'CGEPY face match upstream URL is not configured on server. Set CGEPY_FACE_MATCH_URL to the working upstream endpoint.'
         });
     }
 

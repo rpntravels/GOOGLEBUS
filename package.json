@@ -9,7 +9,7 @@
     "ip": "curl -sS https://ifconfig.me && echo",
     "pan:test:direct": "sh -c 'set -a && . ./.env && set +a && curl --location --fail-with-body \"$CGEPY_VERIFY_URL\" --header \"Content-Type: application/json\" --header \"x-merchant-id: $CGEPY_MERCHANT_ID\" --header \"x-api-key: $CGEPY_API_KEY\" --header \"x-secret-key: $CGEPY_SECRET_KEY\" --data \"{\\\"pan\\\":\\\"AZYPH1234W\\\"}\"'",
     "pan:test:local": "curl --location --fail-with-body http://localhost:3000/api/v1/verify/pan --header Content-Type:application/json --data '{\"pan\":\"AZYPH1234W\"}'",
-    "face-match:test:direct": "sh -c 'set -a && . ./.env && set +a && curl --location --fail-with-body \"${CGEPY_FACE_MATCH_URL:-https://verify.cgpey.com/api/v1/verify/face_match}\" --header \"x-merchant-id: $CGEPY_MERCHANT_ID\" --header \"x-api-key: $CGEPY_API_KEY\" --header \"x-secret-key: $CGEPY_SECRET_KEY\" --form \"image1=@${IMAGE1:?set IMAGE1}\" --form \"image2=@${IMAGE2:?set IMAGE2}\"'",
+    "face-match:test:direct": "sh -c 'set -a && . ./.env && set +a && : \"${CGEPY_FACE_MATCH_URL:?set CGEPY_FACE_MATCH_URL}\" && curl --location --fail-with-body \"$CGEPY_FACE_MATCH_URL\" --header \"x-merchant-id: $CGEPY_MERCHANT_ID\" --header \"x-api-key: $CGEPY_API_KEY\" --header \"x-secret-key: $CGEPY_SECRET_KEY\" --form \"image1=@${IMAGE1:?set IMAGE1}\" --form \"image2=@${IMAGE2:?set IMAGE2}\"'",
     "face-match:test:local": "sh -c 'curl --location --fail-with-body http://localhost:3000/api/v1/verify/face_match --form \"image1=@${IMAGE1:?set IMAGE1}\" --form \"image2=@${IMAGE2:?set IMAGE2}\"'"
   },
   "keywords": [

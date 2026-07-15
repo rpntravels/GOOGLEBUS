@@ -188,6 +188,29 @@ curl --location --fail-with-body 'https://verify.cgpey.com/api/v1/verify/crimina
     --data '{"name":"Rakesh Sharma","address":"Flat 12, MG Road, Bengaluru, Karnataka 560001"}'
 ```
 
+### POST `/api/v1/verify/face_match`
+Face match proxy endpoint.
+
+Request:
+- multipart form data with `image1` and `image2`
+
+Local test command:
+```bash
+IMAGE1=/path/to/person.jpg IMAGE2=/path/to/id-card.jpg \
+curl --location --fail-with-body http://localhost:3000/api/v1/verify/face_match \
+    --form "image1=@$IMAGE1" \
+    --form "image2=@$IMAGE2"
+```
+
+For direct upstream testing, you must set `CGEPY_FACE_MATCH_URL` to the working provider endpoint first. There is no verified public default route for face match on `verify.cgpey.com`, and the previously assumed URL returns `Route not found`.
+
+Example:
+```bash
+CGEPY_FACE_MATCH_URL='https://your-working-face-match-endpoint' \
+IMAGE1=/path/to/person.jpg IMAGE2=/path/to/id-card.jpg \
+npm run face-match:test:direct
+```
+
 ## Deployment Options
 
 ### Option 1: Render (Free)
