@@ -63,6 +63,7 @@
         <input type="text" id="okycSessionId" placeholder="Enter OKYC Session ID" autocomplete="off">
         <input type="text" id="okycOtp" placeholder="Enter OTP" maxlength="6" autocomplete="off">
         <input type="text" id="okycAadhaar" placeholder="Enter Aadhaar Number" maxlength="12" autocomplete="off">
+        <button id="okycInitiateBtn" onclick="initiateOkyc()">Initiate OKYC</button>
         <button id="okycVerifyBtn" onclick="verifyOkyc()">Verify OKYC</button>
         <pre id="okycResult"></pre>
         <script>
@@ -110,6 +111,21 @@
           return /^\d{12}$/.test(value);
         }
 
+        function extractOkycSessionId(result) {
+          if (!result || typeof result !== "object") {
+            return "";
+          }
+
+          const candidate =
+            result.sessionId ||
+            (result.data && result.data.sessionId) ||
+            (result.result && result.result.sessionId) ||
+            (result.response && result.response.sessionId) ||
+            (result.details && result.details.sessionId);
+
+          return candidate ? String(candidate).trim() : "";
+        }
+
         function getVerificationErrorMessage(result, label) {
           const details = result && result.details ? result.details : {};
           const nestedError = details && details.error ? details.error : {};
@@ -126,6 +142,68 @@
 
         function goToNextPage() {
           window.location.href = getNextPageUrl();
+        }
+
+        async function initiateOkyc() {
+          const aadhaarEl = document.getElementById("okycAadhaar");
+          const sessionIdEl = document.getElementById("okycSessionId");
+          const initiateBtn = document.getElementById("okycInitiateBtn");
+          const resultEl = document.getElementById("okycResult");
+
+          const aadhaarNumber = normalizeAadhaar(aadhaarEl.value);
+          aadhaarEl.value = aadhaarNumber;
+
+          if (!isValidAadhaar(aadhaarNumber)) {
+            resultEl.textContent = "Enter a valid 12-digit Aadhaar number.";
+            return;
+          }
+
+          initiateBtn.disabled = true;
+          initiateBtn.textContent = "Initiating...";
+          resultEl.textContent = "Initiating OKYC...";
+
+          try {
+            const response = await fetch(getPanApiBase() + "/api/v1/verify/okyc/initiate", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                aadhaarNumber: aadhaarNumber
+              })
+            });
+
+            const rawBody = await response.text();
+            let result = {};
+
+            try {
+              result = rawBody ? JSON.parse(rawBody) : {};
+            } catch (parseError) {
+              result = { error: "Unexpected response from OKYC initiate API", raw: rawBody };
+            }
+
+            resultEl.textContent = JSON.stringify(result, null, 2);
+
+            if (!response.ok || result.success === false) {
+              const errorMessage = getVerificationErrorMessage(result, "OKYC initiate");
+              resultEl.textContent += "\n\n" + errorMessage;
+              return;
+            }
+
+            const sessionId = extractOkycSessionId(result);
+            if (sessionId) {
+              sessionIdEl.value = sessionId;
+              resultEl.textContent += "\n\nOKYC initiated successfully. Session ID auto-filled.";
+            } else {
+              resultEl.textContent += "\n\nOKYC initiated successfully. Copy Session ID from response and paste it above.";
+            }
+          } catch (error) {
+            resultEl.textContent = "Unable to connect to OKYC initiate API.";
+            console.error(error);
+          } finally {
+            initiateBtn.disabled = false;
+            initiateBtn.textContent = "Initiate OKYC";
+          }
         }
 
         async function verifyPAN() {

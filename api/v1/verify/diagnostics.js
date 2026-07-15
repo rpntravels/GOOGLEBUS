@@ -66,7 +66,8 @@ module.exports = async function handler(req, res) {
     verifyUrls: {
       pan: process.env.CGEPY_VERIFY_URL || process.env.CGPEY_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/pan',
       voterId: process.env.CGEPY_VOTER_VERIFY_URL || process.env.CGPEY_VOTER_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/voter-id',
-      okyc: process.env.CGEPY_OKYC_VERIFY_URL || process.env.CGPEY_OKYC_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/okyc/verify'
+      okycInitiate: process.env.CGEPY_OKYC_INITIATE_URL || process.env.CGPEY_OKYC_INITIATE_URL || 'https://verify.cgpey.com/api/v1/verify/okyc/initiate',
+      okycVerify: process.env.CGEPY_OKYC_VERIFY_URL || process.env.CGPEY_OKYC_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/okyc/verify'
     },
     credentialsConfigured: {
       merchantId: !!(process.env.CGEPY_MERCHANT_ID || process.env.CGPEY_MERCHANT_ID),

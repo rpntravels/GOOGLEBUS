@@ -11,6 +11,7 @@ var app = express();
 var PORT = process.env.PORT || 3000;
 var PAN_VERIFY_API_URL = process.env.CGEPY_VERIFY_URL || process.env.CGPEY_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/pan';
 var VOTER_VERIFY_API_URL = process.env.CGEPY_VOTER_VERIFY_URL || process.env.CGPEY_VOTER_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/voter-id';
+var OKYC_INITIATE_API_URL = process.env.CGEPY_OKYC_INITIATE_URL || process.env.CGPEY_OKYC_INITIATE_URL || 'https://verify.cgpey.com/api/v1/verify/okyc/initiate';
 var OKYC_VERIFY_API_URL = process.env.CGEPY_OKYC_VERIFY_URL || process.env.CGPEY_OKYC_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/okyc/verify';
 
 function getRequestIp(req) {
@@ -91,7 +92,8 @@ function getVerificationDiagnostics(req) {
         verifyUrls: {
             pan: PAN_VERIFY_API_URL,
             voterId: VOTER_VERIFY_API_URL,
-            okyc: OKYC_VERIFY_API_URL
+            okycInitiate: OKYC_INITIATE_API_URL,
+            okycVerify: OKYC_VERIFY_API_URL
         },
         credentialsConfigured: {
             merchantId: !!(process.env.CGEPY_MERCHANT_ID || process.env.CGPEY_MERCHANT_ID),
@@ -412,6 +414,81 @@ function handleOkycVerification(req, res) {
     });
 }
 
+function handleOkycInitiate(req, res) {
+    var aadhaarNumber = (req.body.aadhaarNumber || '').toString().trim();
+    var merchantId = process.env.CGEPY_MERCHANT_ID || process.env.CGPEY_MERCHANT_ID;
+    var apiKey = process.env.CGEPY_API_KEY || process.env.CGPEY_API_KEY;
+    var secretKey = process.env.CGEPY_SECRET_KEY || process.env.CGPEY_SECRET_KEY;
+    var baseUrl = getBaseUrl(req);
+    var normalizedInitiateUrl = (OKYC_INITIATE_API_URL || '').replace(/\/$/, '');
+
+    if (baseUrl && normalizedInitiateUrl === (baseUrl + '/api/v1/verify/okyc/initiate')) {
+        return res.status(500).json({
+            success: false,
+            error: 'OKYC initiate proxy target points to this same endpoint. Set CGEPY_OKYC_INITIATE_URL to the real upstream API URL.'
+        });
+    }
+
+    if (!aadhaarNumber) {
+        return res.status(400).json({ success: false, error: 'aadhaarNumber is required' });
+    }
+
+    if (!isIpAllowed(req)) {
+        return res.status(403).json({
+            success: false,
+            error: 'IP is not allowlisted for OKYC initiate'
+        });
+    }
+
+    if (!merchantId || !apiKey || !secretKey) {
+        return res.status(500).json({
+            success: false,
+            error: 'CGEPY credentials are not configured on server'
+        });
+    }
+
+    fetch(OKYC_INITIATE_API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-merchant-id': merchantId,
+            'x-api-key': apiKey,
+            'x-secret-key': secretKey
+        },
+        body: JSON.stringify({
+            aadhaarNumber: aadhaarNumber
+        })
+    })
+    .then(function(response) {
+        return response.text().then(function(text) {
+            var data;
+            try {
+                data = text ? JSON.parse(text) : {};
+            } catch (e) {
+                data = { raw: text };
+            }
+
+            if (!response.ok) {
+                logVerificationIpContext('OKYC_INITIATE', req, data);
+                return res.status(response.status).json({
+                    success: false,
+                    error: 'CGEPY verification failed',
+                    details: data
+                });
+            }
+
+            res.json(data);
+        });
+    })
+    .catch(function(error) {
+        console.error('CGEPY API Error:', error);
+        res.status(502).json({
+            success: false,
+            error: error.message || 'Failed to connect to CGEPY verification API'
+        });
+    });
+}
+
 // PAN verification proxy endpoints
 app.post('/api/verify/pan', handlePanVerification);
 app.post('/api/v1/verify/pan', handlePanVerification);
@@ -421,6 +498,8 @@ app.post('/api/verify/voter-id', handleVoterIdVerification);
 app.post('/api/v1/verify/voter-id', handleVoterIdVerification);
 
 // OKYC verification proxy endpoints
+app.post('/api/verify/okyc/initiate', handleOkycInitiate);
+app.post('/api/v1/verify/okyc/initiate', handleOkycInitiate);
 app.post('/api/verify/okyc/verify', handleOkycVerification);
 app.post('/api/v1/verify/okyc/verify', handleOkycVerification);
 
@@ -445,6 +524,8 @@ app.listen(PORT, function() {
     console.log('🧾 PAN verify v1 endpoint: http://localhost:' + PORT + '/api/v1/verify/pan');
     console.log('🗳️ Voter ID verify endpoint: http://localhost:' + PORT + '/api/verify/voter-id');
     console.log('🗳️ Voter ID verify v1 endpoint: http://localhost:' + PORT + '/api/v1/verify/voter-id');
+    console.log('🪪 OKYC initiate endpoint: http://localhost:' + PORT + '/api/verify/okyc/initiate');
+    console.log('🪪 OKYC initiate v1 endpoint: http://localhost:' + PORT + '/api/v1/verify/okyc/initiate');
     console.log('🪪 OKYC verify endpoint: http://localhost:' + PORT + '/api/verify/okyc/verify');
     console.log('🪪 OKYC verify v1 endpoint: http://localhost:' + PORT + '/api/v1/verify/okyc/verify');
     console.log('🩺 Verify diagnostics endpoint: http://localhost:' + PORT + '/api/v1/verify/diagnostics');
