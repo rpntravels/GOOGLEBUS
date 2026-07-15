@@ -60,6 +60,10 @@
         <input type="text" id="voterId" placeholder="Enter Voter ID (ABC1234567)" maxlength="10" autocomplete="off">
         <button id="voterVerifyBtn" onclick="verifyVoterId()">Verify Voter ID</button>
         <pre id="voterResult"></pre>
+        <input type="text" id="drivingLicenceNumber" placeholder="Enter Driving Licence Number" autocomplete="off">
+        <input type="date" id="drivingLicenceDob" placeholder="Date of Birth">
+        <button id="drivingLicenceVerifyBtn" onclick="verifyDrivingLicence()">Verify Driving Licence</button>
+        <pre id="drivingLicenceResult"></pre>
         <input type="text" id="okycSessionId" placeholder="Enter OKYC Session ID" autocomplete="off">
         <input type="text" id="okycOtp" placeholder="Enter OTP" maxlength="6" autocomplete="off">
         <input type="text" id="okycAadhaar" placeholder="Enter Aadhaar Number" maxlength="12" autocomplete="off">
@@ -217,6 +221,19 @@
 
         function isValidVoterId(value) {
           return /^[A-Z]{3}[0-9]{7}$/.test(value);
+        }
+
+        function normalizeDrivingLicenceNumber(value) {
+          return (value || "").replace(/\s+/g, "").toUpperCase();
+        }
+
+        function isValidDrivingLicenceDob(value) {
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) {
+            return false;
+          }
+
+          const parsed = new Date(value + "T00:00:00");
+          return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
         }
 
         function normalizeOkycSessionId(value) {
@@ -453,6 +470,79 @@
           } finally {
             verifyBtn.disabled = false;
             verifyBtn.textContent = "Verify Voter ID";
+          }
+        }
+
+        async function verifyDrivingLicence() {
+          const licenceNumberEl = document.getElementById("drivingLicenceNumber");
+          const dobEl = document.getElementById("drivingLicenceDob");
+          const verifyBtn = document.getElementById("drivingLicenceVerifyBtn");
+          const resultEl = document.getElementById("drivingLicenceResult");
+          const nextBtn = document.getElementById("panNextBtn");
+
+          const licenceNumber = normalizeDrivingLicenceNumber(licenceNumberEl.value);
+          const dob = (dobEl.value || "").trim();
+
+          licenceNumberEl.value = licenceNumber;
+          dobEl.value = dob;
+          nextBtn.style.display = "none";
+
+          if (!licenceNumber) {
+            resultEl.textContent = "Enter a valid Driving Licence number.";
+            return;
+          }
+
+          if (!isValidDrivingLicenceDob(dob)) {
+            resultEl.textContent = "Enter DOB in YYYY-MM-DD format.";
+            return;
+          }
+
+          verifyBtn.disabled = true;
+          verifyBtn.textContent = "Verifying...";
+          resultEl.textContent = "Verifying Driving Licence...";
+
+          try {
+            const response = await postVerificationRequest("/api/v1/verify/driving_licence", {
+              licence_number: licenceNumber,
+              dob: dob
+            });
+
+            const rawBody = await response.text();
+            let result = {};
+
+            try {
+              result = rawBody ? JSON.parse(rawBody) : {};
+            } catch (parseError) {
+              result = { error: "Unexpected response from Driving Licence API", raw: rawBody };
+            }
+
+            resultEl.textContent = JSON.stringify(result, null, 2);
+
+            if (!response.ok || result.success === false) {
+              const errorMessage = getVerificationErrorMessage(result, "Driving Licence");
+              resultEl.textContent += "\n\n" + errorMessage;
+              return;
+            }
+
+            sessionStorage.setItem("drivingLicenceVerification", JSON.stringify({
+              licence_number: licenceNumber,
+              dob: dob,
+              verifiedAt: new Date().toISOString(),
+              response: result
+            }));
+
+            nextBtn.style.display = "inline-block";
+            resultEl.textContent += "\n\nDriving Licence verified successfully. Redirecting to next page...";
+
+            setTimeout(function() {
+              goToNextPage();
+            }, 1500);
+          } catch (error) {
+            resultEl.textContent = "Unable to connect to Driving Licence verification API.";
+            console.error(error);
+          } finally {
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = "Verify Driving Licence";
           }
         }
 
