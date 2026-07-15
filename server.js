@@ -8,6 +8,7 @@ var cors = require('cors');
 var fetch = require('node-fetch');
 var multer = require('multer');
 var FormData = require('form-data');
+var path = require('path');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -140,6 +141,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
+app.use(express.static(path.join(__dirname)));
 
 // RPN AI System Prompt
 var SYSTEM_PROMPT = 'You are RPN AI, a helpful assistant for RPN Travels (Google Bus).\n' +

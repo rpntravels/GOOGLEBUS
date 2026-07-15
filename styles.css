@@ -137,6 +137,8 @@ body {
 
 #pan,
 #voterId,
+#drivingLicenceNumber,
+#drivingLicenceDob,
 #okycSessionId,
 #okycOtp,
 #okycAadhaar,
@@ -158,6 +160,8 @@ body {
 
 #pan:focus,
 #voterId:focus,
+#drivingLicenceNumber:focus,
+#drivingLicenceDob:focus,
 #okycSessionId:focus,
 #okycOtp:focus,
 #okycAadhaar:focus,
@@ -178,6 +182,7 @@ body {
 
 #panVerifyBtn,
 #voterVerifyBtn,
+#drivingLicenceVerifyBtn,
 #okycInitiateBtn,
 #okycVerifyBtn,
 #criminalVerifyBtn,
@@ -196,6 +201,7 @@ body {
 
 #panVerifyBtn:hover,
 #voterVerifyBtn:hover,
+#drivingLicenceVerifyBtn:hover,
 #okycInitiateBtn:hover,
 #okycVerifyBtn:hover,
 #criminalVerifyBtn:hover,
@@ -207,6 +213,7 @@ body {
 
 #panVerifyBtn:disabled,
 #voterVerifyBtn:disabled,
+#drivingLicenceVerifyBtn:disabled,
 #okycInitiateBtn:disabled,
 #okycVerifyBtn:disabled,
 #criminalVerifyBtn:disabled,
@@ -219,6 +226,7 @@ body {
 
 #panResult,
 #voterResult,
+#drivingLicenceResult,
 #okycResult,
 #criminalResult,
 #faceMatchResult {
