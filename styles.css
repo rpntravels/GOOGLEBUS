@@ -300,6 +300,18 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+.driving-license-btn {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    color: white;
+    text-decoration: none;
+}
+
+.driving-license-btn:hover {
+    background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+}
+
 .fastag-btn {
     background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
     color: white;
