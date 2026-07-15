@@ -244,6 +244,35 @@ body {
     margin-top: 15px;
 }
 
+.verify-subtitle {
+    width: min(560px, 100%);
+    margin: 18px auto 8px;
+    font-size: 20px;
+    color: #0f2a46;
+    text-align: left;
+    font-family: Arial, sans-serif;
+}
+
+.verify-hint {
+    width: min(560px, 100%);
+    margin: 0 auto 10px;
+    color: #3b4f65;
+    font-size: 14px;
+    text-align: left;
+    padding: 0;
+}
+
+.verify-label {
+    display: block;
+    width: min(560px, 100%);
+    margin: 8px auto 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f3347;
+    text-align: left;
+    font-family: Arial, sans-serif;
+}
+
 .nav-btn {
     display: inline-block;
     margin: 20px auto;

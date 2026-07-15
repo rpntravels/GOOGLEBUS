@@ -70,7 +70,12 @@
         <textarea id="criminalAddress" placeholder="Enter Full Address" rows="3"></textarea>
         <button id="criminalVerifyBtn" onclick="verifyCriminalVerification()">Verify Criminal Record</button>
         <pre id="criminalResult"></pre>
+
+        <h4 class="verify-subtitle">Face Match Verification</h4>
+        <p class="verify-hint">Upload person image and ID card image, then click Verify Face Match.</p>
+        <label for="faceImage1" class="verify-label">Person Image</label>
         <input type="file" id="faceImage1" accept="image/*">
+        <label for="faceImage2" class="verify-label">ID Card Image</label>
         <input type="file" id="faceImage2" accept="image/*">
         <button id="faceMatchVerifyBtn" onclick="verifyFaceMatch()">Verify Face Match</button>
         <pre id="faceMatchResult"></pre>
