@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Face Match Verification</title>
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <main class="container">
+    <nav class="nav-links" aria-label="Verification pages">
+      <a href="../index.html">Home</a>
+      <a href="../pan/index.html">PAN Verification</a>
+      <a href="./index.html" class="active">Face Match</a>
+    </nav>
+
+    <h1>Face Match Verification</h1>
+    <p class="subtitle">Upload a person photo and ID card photo for <code>/api/v1/verify/face_match</code>.</p>
+
+    <form id="faceMatchForm" class="verify-form" enctype="multipart/form-data">
+      <label for="image1Input">Person Image</label>
+      <input
+        id="image1Input"
+        name="image1"
+        type="file"
+        accept="image/*"
+        required
+      />
+
+      <label for="image2Input">ID Card Image</label>
+      <input
+        id="image2Input"
+        name="image2"
+        type="file"
+        accept="image/*"
+        required
+      />
+
+      <button id="faceMatchBtn" type="submit">Verify Face Match</button>
+    </form>
+
+    <p id="status" aria-live="polite"></p>
+    <pre id="result" aria-live="polite"></pre>
+  </main>
+  <script src="../script.js"></script>
+</body>
+</html>

@@ -6,6 +6,8 @@ require('dotenv').config();
 var express = require('express');
 var cors = require('cors');
 var fetch = require('node-fetch');
+var multer = require('multer');
+var FormData = require('form-data');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -14,6 +16,8 @@ var VOTER_VERIFY_API_URL = process.env.CGEPY_VOTER_VERIFY_URL || process.env.CGP
 var CRIMINAL_VERIFY_API_URL = process.env.CGEPY_CRIMINAL_VERIFY_URL || process.env.CGPEY_CRIMINAL_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/criminal_verification';
 var OKYC_INITIATE_API_URL = process.env.CGEPY_OKYC_INITIATE_URL || process.env.CGPEY_OKYC_INITIATE_URL || 'https://verify.cgpey.com/api/v1/verify/okyc/initiate';
 var OKYC_VERIFY_API_URL = process.env.CGEPY_OKYC_VERIFY_URL || process.env.CGPEY_OKYC_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/okyc/verify';
+var FACE_MATCH_API_URL = process.env.CGEPY_FACE_MATCH_URL || process.env.CGPEY_FACE_MATCH_URL || 'https://verify.cgpey.com/api/v1/verify/face_match';
+var upload = multer({ storage: multer.memoryStorage() });
 
 function getRequestIp(req) {
     var forwardedFor = req.headers['x-forwarded-for'];
@@ -117,7 +121,8 @@ function getVerificationDiagnostics(req) {
             voterId: VOTER_VERIFY_API_URL,
             criminalVerification: CRIMINAL_VERIFY_API_URL,
             okycInitiate: OKYC_INITIATE_API_URL,
-            okycVerify: OKYC_VERIFY_API_URL
+            okycVerify: OKYC_VERIFY_API_URL,
+            faceMatch: FACE_MATCH_API_URL
         },
         credentialsConfigured: {
             merchantId: !!(process.env.CGEPY_MERCHANT_ID || process.env.CGPEY_MERCHANT_ID),
@@ -575,6 +580,100 @@ function handleCriminalVerification(req, res) {
     });
 }
 
+function handleFaceMatchVerification(req, res) {
+    logIncomingVerificationRequest('FACE_MATCH', req);
+
+    var files = req.files || {};
+    var image1 = files.image1 && files.image1[0];
+    var image2 = files.image2 && files.image2[0];
+    var merchantId = process.env.CGEPY_MERCHANT_ID || process.env.CGPEY_MERCHANT_ID;
+    var apiKey = process.env.CGEPY_API_KEY || process.env.CGPEY_API_KEY;
+    var secretKey = process.env.CGEPY_SECRET_KEY || process.env.CGPEY_SECRET_KEY;
+    var baseUrl = getBaseUrl(req);
+    var normalizedVerifyUrl = (FACE_MATCH_API_URL || '').replace(/\/$/, '');
+
+    if (baseUrl && normalizedVerifyUrl === (baseUrl + '/api/v1/verify/face_match')) {
+        return res.status(500).json({
+            success: false,
+            error: 'Face match proxy target points to this same endpoint. Set CGEPY_FACE_MATCH_URL to the real upstream API URL.'
+        });
+    }
+
+    if (!image1 || !image2) {
+        return res.status(400).json({ success: false, error: 'image1 and image2 files are required' });
+    }
+
+    if (!isIpAllowed(req)) {
+        return res.status(403).json({
+            success: false,
+            error: 'IP is not allowlisted for face match verification'
+        });
+    }
+
+    if (!merchantId || !apiKey || !secretKey) {
+        return res.status(500).json({
+            success: false,
+            error: 'CGEPY credentials are not configured on server'
+        });
+    }
+
+    var payload = new FormData();
+    payload.append('image1', image1.buffer, {
+        filename: image1.originalname || 'image1.jpg',
+        contentType: image1.mimetype || 'application/octet-stream'
+    });
+    payload.append('image2', image2.buffer, {
+        filename: image2.originalname || 'image2.jpg',
+        contentType: image2.mimetype || 'application/octet-stream'
+    });
+
+    var requestIp = getRequestIp(req);
+    var headers = payload.getHeaders({
+        'x-merchant-id': merchantId,
+        'x-api-key': apiKey,
+        'x-secret-key': secretKey
+    });
+
+    if (requestIp) {
+        headers['x-forwarded-for'] = requestIp;
+        headers['x-real-ip'] = requestIp;
+    }
+
+    fetch(FACE_MATCH_API_URL, {
+        method: 'POST',
+        headers: headers,
+        body: payload
+    })
+    .then(function(response) {
+        return response.text().then(function(text) {
+            var data;
+            try {
+                data = text ? JSON.parse(text) : {};
+            } catch (e) {
+                data = { raw: text };
+            }
+
+            if (!response.ok) {
+                logVerificationIpContext('FACE_MATCH', req, data);
+                return res.status(response.status).json({
+                    success: false,
+                    error: 'CGEPY verification failed',
+                    details: data
+                });
+            }
+
+            res.json(data);
+        });
+    })
+    .catch(function(error) {
+        console.error('CGEPY API Error:', error);
+        res.status(502).json({
+            success: false,
+            error: error.message || 'Failed to connect to CGEPY verification API'
+        });
+    });
+}
+
 // PAN verification proxy endpoints
 app.post('/api/verify/pan', handlePanVerification);
 app.post('/api/v1/verify/pan', handlePanVerification);
@@ -586,6 +685,10 @@ app.post('/api/v1/verify/voter-id', handleVoterIdVerification);
 // Criminal verification proxy endpoints
 app.post('/api/verify/criminal_verification', handleCriminalVerification);
 app.post('/api/v1/verify/criminal_verification', handleCriminalVerification);
+
+// Face match verification proxy endpoints
+app.post('/api/verify/face_match', upload.fields([{ name: 'image1', maxCount: 1 }, { name: 'image2', maxCount: 1 }]), handleFaceMatchVerification);
+app.post('/api/v1/verify/face_match', upload.fields([{ name: 'image1', maxCount: 1 }, { name: 'image2', maxCount: 1 }]), handleFaceMatchVerification);
 
 // OKYC verification proxy endpoints
 app.post('/api/verify/okyc/initiate', handleOkycInitiate);
@@ -616,6 +719,8 @@ app.listen(PORT, function() {
     console.log('🗳️ Voter ID verify v1 endpoint: http://localhost:' + PORT + '/api/v1/verify/voter-id');
     console.log('🧑‍⚖️ Criminal verify endpoint: http://localhost:' + PORT + '/api/verify/criminal_verification');
     console.log('🧑‍⚖️ Criminal verify v1 endpoint: http://localhost:' + PORT + '/api/v1/verify/criminal_verification');
+    console.log('🧑 Face match endpoint: http://localhost:' + PORT + '/api/verify/face_match');
+    console.log('🧑 Face match v1 endpoint: http://localhost:' + PORT + '/api/v1/verify/face_match');
     console.log('🪪 OKYC initiate endpoint: http://localhost:' + PORT + '/api/verify/okyc/initiate');
     console.log('🪪 OKYC initiate v1 endpoint: http://localhost:' + PORT + '/api/v1/verify/okyc/initiate');
     console.log('🪪 OKYC verify endpoint: http://localhost:' + PORT + '/api/verify/okyc/verify');

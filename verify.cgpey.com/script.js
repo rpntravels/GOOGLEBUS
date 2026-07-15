@@ -1,5 +1,8 @@
 const panForm = document.getElementById('panForm');
 const panInput = document.getElementById('panInput');
+const faceMatchForm = document.getElementById('faceMatchForm');
+const image1Input = document.getElementById('image1Input');
+const image2Input = document.getElementById('image2Input');
 const statusEl = document.getElementById('status');
 const resultEl = document.getElementById('result');
 
@@ -16,6 +19,10 @@ function isValidPan(value) {
 }
 
 function setStatus(message, tone) {
+  if (!statusEl) {
+    return;
+  }
+
   statusEl.textContent = message;
   statusEl.className = tone || '';
 }
@@ -52,6 +59,49 @@ panForm?.addEventListener('submit', async function(event) {
     }
 
     setStatus('PAN verification request completed.', 'ok');
+  } catch (error) {
+    setStatus('Unable to reach verification API.', 'err');
+    resultEl.textContent = error && error.message ? error.message : 'Unexpected error';
+  }
+});
+
+faceMatchForm?.addEventListener('submit', async function(event) {
+  event.preventDefault();
+
+  if (!image1Input?.files?.length || !image2Input?.files?.length) {
+    setStatus('Select both images to continue.', 'err');
+    return;
+  }
+
+  const payload = new FormData();
+  payload.append('image1', image1Input.files[0]);
+  payload.append('image2', image2Input.files[0]);
+  resultEl.textContent = '';
+  setStatus('Verifying face match...', 'info');
+
+  try {
+    const response = await fetch(getApiBase() + '/api/v1/verify/face_match', {
+      method: 'POST',
+      body: payload
+    });
+
+    const raw = await response.text();
+    let data;
+
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch (error) {
+      data = { raw: raw };
+    }
+
+    resultEl.textContent = JSON.stringify(data, null, 2);
+
+    if (!response.ok) {
+      setStatus((data && data.error) || 'Face match verification failed.', 'err');
+      return;
+    }
+
+    setStatus('Face match verification request completed.', 'ok');
   } catch (error) {
     setStatus('Unable to reach verification API.', 'err');
     resultEl.textContent = error && error.message ? error.message : 'Unexpected error';
