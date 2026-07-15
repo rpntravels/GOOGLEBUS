@@ -116,6 +116,27 @@ npm run pan:test:local
 If you receive `403 Forbidden` with `IP whitelist is mandatory but not configured`,
 your source IP must be allowlisted by CGEPY for your merchant.
 
+### POST `/api/v1/verify/driving_licence`
+Driving licence verification proxy endpoint.
+
+Request:
+```json
+{
+    "licence_number": "MH4720190020741",
+    "dob": "1994-08-15"
+}
+```
+
+For direct upstream testing:
+```bash
+curl --location --fail-with-body 'https://verify.cgpey.com/api/v1/verify/driving_licence' \
+    --header 'Content-Type: application/json' \
+    --header 'x-merchant-id: <YOUR_MERCHANT_ID>' \
+    --header 'x-api-key: <YOUR_API_KEY>' \
+    --header 'x-secret-key: <YOUR_SECRET_KEY>' \
+    --data '{"licence_number":"MH4720190020741","dob":"1994-08-15"}'
+```
+
 ### POST `/api/v1/verify/okyc/initiate`
 OKYC initiate proxy endpoint.
 
