@@ -2,44 +2,93 @@ const fetch = require('node-fetch');
 
 const DRIVING_LICENCE_VERIFY_API_URL = process.env.CGEPY_DRIVING_LICENCE_VERIFY_URL || process.env.CGPEY_DRIVING_LICENCE_VERIFY_URL || 'https://verify.cgpey.com/api/v1/verify/driving_licence';
 
-function getRequestIp(req) {
+function normalizeIp(ip) {
+  if (!ip) {
+    return '';
+  }
+
+  let normalized = ip.toString().trim();
+
+  if (!normalized) {
+    return '';
+  }
+
+  if (normalized.indexOf('::ffff:') === 0) {
+    normalized = normalized.slice(7);
+  }
+
+  if (normalized[0] === '[' && normalized.indexOf(']') > 0) {
+    normalized = normalized.slice(1, normalized.indexOf(']'));
+  }
+
+  if (/^\d+\.\d+\.\d+\.\d+:\d+$/.test(normalized)) {
+    normalized = normalized.split(':')[0];
+  }
+
+  return normalized;
+}
+
+function getRequestIps(req) {
+  const collected = [];
   const forwardedFor = req.headers['x-forwarded-for'];
 
   if (forwardedFor && typeof forwardedFor === 'string') {
-    return forwardedFor.split(',')[0].trim();
+    forwardedFor.split(',').forEach((entry) => {
+      const normalized = normalizeIp(entry);
+      if (normalized) {
+        collected.push(normalized);
+      }
+    });
   }
 
-  if (req.headers['x-real-ip']) {
-    return req.headers['x-real-ip'];
-  }
+  [
+    req.headers['x-real-ip'],
+    req.ip,
+    req.socket && req.socket.remoteAddress,
+    req.connection && req.connection.remoteAddress
+  ].forEach((entry) => {
+    const normalized = normalizeIp(entry);
+    if (normalized) {
+      collected.push(normalized);
+    }
+  });
 
-  if (req.socket && req.socket.remoteAddress) {
-    return req.socket.remoteAddress;
-  }
+  return Array.from(new Set(collected));
+}
 
-  if (req.connection && req.connection.remoteAddress) {
-    return req.connection.remoteAddress;
-  }
-
-  return '';
+function getRequestIp(req) {
+  const requestIps = getRequestIps(req);
+  return requestIps[0] || '';
 }
 
 function getAllowedIps() {
   const value = process.env.IP_WHITELIST || process.env.IP_ALLOWLIST || '';
 
-  return value.split(',').map((ip) => ip.trim()).filter(Boolean);
+  return value.split(',').map((ip) => normalizeIp(ip)).filter(Boolean);
+}
+
+function isLocalIp(ip) {
+  return ip === '127.0.0.1' || ip === '::1' || ip === 'localhost';
 }
 
 function isIpAllowed(req) {
+  if (process.env.CGEPY_ENFORCE_REQUEST_IP_ALLOWLIST !== 'true') {
+    return true;
+  }
+
   const allowedIps = getAllowedIps();
 
   if (allowedIps.length === 0) {
     return true;
   }
 
-  const requestIp = getRequestIp(req);
+  const requestIps = getRequestIps(req);
 
-  return allowedIps.includes(requestIp);
+  if (process.env.NODE_ENV !== 'production' && requestIps.some(isLocalIp)) {
+    return true;
+  }
+
+  return requestIps.some((ip) => allowedIps.includes(ip));
 }
 
 function setCors(res) {
@@ -82,7 +131,6 @@ function logVerificationIpContext(req, details) {
 }
 
 function buildVerificationHeaders(req, merchantId, apiKey, secretKey) {
-  const requestIp = getRequestIp(req);
   const headers = {
     'Content-Type': 'application/json',
     'x-merchant-id': merchantId,
@@ -90,9 +138,14 @@ function buildVerificationHeaders(req, merchantId, apiKey, secretKey) {
     'x-secret-key': secretKey
   };
 
-  if (requestIp) {
-    headers['x-forwarded-for'] = requestIp;
-    headers['x-real-ip'] = requestIp;
+  // Forwarding the browser/client IP can cause upstream IP allowlist failures.
+  // Default behavior relies on server egress IP; opt in only when explicitly needed.
+  if (process.env.CGEPY_FORWARD_CLIENT_IP === 'true') {
+    const requestIp = getRequestIp(req);
+    if (requestIp) {
+      headers['x-forwarded-for'] = requestIp;
+      headers['x-real-ip'] = requestIp;
+    }
   }
 
   return headers;

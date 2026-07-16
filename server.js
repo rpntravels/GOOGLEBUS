@@ -21,46 +21,97 @@ var OKYC_VERIFY_API_URL = process.env.CGEPY_OKYC_VERIFY_URL || process.env.CGPEY
 var FACE_MATCH_API_URL = process.env.CGEPY_FACE_MATCH_URL || process.env.CGPEY_FACE_MATCH_URL || '';
 var upload = multer({ storage: multer.memoryStorage() });
 
-function getRequestIp(req) {
+function normalizeIp(ip) {
+    if (!ip) {
+        return '';
+    }
+
+    var normalized = ip.toString().trim();
+
+    if (!normalized) {
+        return '';
+    }
+
+    if (normalized.indexOf('::ffff:') === 0) {
+        normalized = normalized.slice(7);
+    }
+
+    if (normalized[0] === '[' && normalized.indexOf(']') > 0) {
+        normalized = normalized.slice(1, normalized.indexOf(']'));
+    }
+
+    if (/^\d+\.\d+\.\d+\.\d+:\d+$/.test(normalized)) {
+        normalized = normalized.split(':')[0];
+    }
+
+    return normalized;
+}
+
+function getRequestIps(req) {
+    var collected = [];
     var forwardedFor = req.headers['x-forwarded-for'];
 
     if (forwardedFor && typeof forwardedFor === 'string') {
-        return forwardedFor.split(',')[0].trim();
+        forwardedFor.split(',').forEach(function(entry) {
+            var normalized = normalizeIp(entry);
+            if (normalized) {
+                collected.push(normalized);
+            }
+        });
     }
 
-    if (req.ip) {
-        return req.ip;
-    }
+    [
+        req.headers['x-real-ip'],
+        req.ip,
+        req.connection && req.connection.remoteAddress,
+        req.socket && req.socket.remoteAddress
+    ].forEach(function(entry) {
+        var normalized = normalizeIp(entry);
+        if (normalized) {
+            collected.push(normalized);
+        }
+    });
 
-    if (req.connection && req.connection.remoteAddress) {
-        return req.connection.remoteAddress;
-    }
+    return Array.from(new Set(collected));
+}
 
-    if (req.socket && req.socket.remoteAddress) {
-        return req.socket.remoteAddress;
-    }
-
-    return '';
+function getRequestIp(req) {
+    var requestIps = getRequestIps(req);
+    return requestIps[0] || '';
 }
 
 function getAllowedIps() {
     var value = process.env.IP_WHITELIST || process.env.IP_ALLOWLIST || '';
 
     return value.split(',').map(function(ip) {
-        return ip.trim();
+        return normalizeIp(ip);
     }).filter(Boolean);
 }
 
+function isLocalIp(ip) {
+    return ip === '127.0.0.1' || ip === '::1' || ip === 'localhost';
+}
+
 function isIpAllowed(req) {
+    if (process.env.CGEPY_ENFORCE_REQUEST_IP_ALLOWLIST !== 'true') {
+        return true;
+    }
+
     var allowedIps = getAllowedIps();
 
     if (allowedIps.length === 0) {
         return true;
     }
 
-    var requestIp = getRequestIp(req);
+    var requestIps = getRequestIps(req);
 
-    return allowedIps.indexOf(requestIp) !== -1;
+    if (process.env.NODE_ENV !== 'production' && requestIps.some(isLocalIp)) {
+        return true;
+    }
+
+    return requestIps.some(function(ip) {
+        return allowedIps.indexOf(ip) !== -1;
+    });
 }
 
 function getBaseUrl(req) {
@@ -92,7 +143,6 @@ function logIncomingVerificationRequest(label, req) {
 }
 
 function buildVerificationHeaders(req, merchantId, apiKey, secretKey) {
-    var requestIp = getRequestIp(req);
     var headers = {
         'Content-Type': 'application/json',
         'x-merchant-id': merchantId,
@@ -100,9 +150,14 @@ function buildVerificationHeaders(req, merchantId, apiKey, secretKey) {
         'x-secret-key': secretKey
     };
 
-    if (requestIp) {
-        headers['x-forwarded-for'] = requestIp;
-        headers['x-real-ip'] = requestIp;
+    // Forwarding the browser/client IP can cause upstream IP allowlist failures.
+    // Default behavior relies on server egress IP; opt in only when explicitly needed.
+    if (process.env.CGEPY_FORWARD_CLIENT_IP === 'true') {
+        var requestIp = getRequestIp(req);
+        if (requestIp) {
+            headers['x-forwarded-for'] = requestIp;
+            headers['x-real-ip'] = requestIp;
+        }
     }
 
     return headers;
