@@ -101,6 +101,17 @@ h1 {
   color: var(--muted);
 }
 
+.ip-allowlist-notice {
+  margin: 0.2rem 0 1rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
 .verify-form {
   display: grid;
   gap: 0.8rem;

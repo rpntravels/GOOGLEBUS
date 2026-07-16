@@ -8,6 +8,77 @@ const image1Input = document.getElementById('image1Input');
 const image2Input = document.getElementById('image2Input');
 const statusEl = document.getElementById('status');
 const resultEl = document.getElementById('result');
+const ipAllowlistNoticeEl = document.getElementById('ipAllowlistNotice');
+
+function clearIpAllowlistNotice() {
+  if (!ipAllowlistNoticeEl) {
+    return;
+  }
+
+  ipAllowlistNoticeEl.hidden = true;
+  ipAllowlistNoticeEl.textContent = '';
+}
+
+function showIpAllowlistNotice(data) {
+  if (!ipAllowlistNoticeEl) {
+    return;
+  }
+
+  const details = data && data.details ? data.details : {};
+  const detailsMessage = details && details.message ? String(details.message) : '';
+  const nestedError = details && details.error ? details.error : {};
+  const clientIp = nestedError.clientIP || nestedError.clientIp || 'unknown';
+
+  if (!/ip\s+not\s+allowed/i.test(detailsMessage)) {
+    clearIpAllowlistNotice();
+    return;
+  }
+
+  ipAllowlistNoticeEl.textContent = 'CGPEY rejected this request because IP is not allowlisted. Upstream client IP: ' + clientIp + '. Please add this IP in your CGPEY allowlist and retry.';
+  ipAllowlistNoticeEl.hidden = false;
+}
+
+function showResult(payload) {
+  if (!resultEl) {
+    return;
+  }
+
+  if (typeof payload === 'string') {
+    resultEl.textContent = payload;
+  } else {
+    resultEl.textContent = JSON.stringify(payload, null, 2);
+  }
+
+  resultEl.style.display = 'block';
+  resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function parseJsonSafe(response) {
+  const raw = await response.text();
+
+  try {
+    return raw ? JSON.parse(raw) : {};
+  } catch (error) {
+    return {
+      success: false,
+      error: 'Unexpected response from verification API',
+      raw: raw
+    };
+  }
+}
+
+function extractErrorMessage(data, fallback) {
+  if (!data || typeof data !== 'object') {
+    return fallback;
+  }
+
+  return (
+    data.error ||
+    data.message ||
+    (data.details && data.details.message) ||
+    fallback
+  );
+}
 
 function getApiBase() {
   return window.location.protocol === 'file:' ? 'http://localhost:3000' : '';
@@ -49,10 +120,11 @@ function setStatus(message, tone) {
 
 panForm?.addEventListener('submit', async function(event) {
   event.preventDefault();
+  clearIpAllowlistNotice();
 
   const pan = normalizePan(panInput.value);
   panInput.value = pan;
-  resultEl.textContent = '';
+  showResult('');
 
   if (!isValidPan(pan)) {
     setStatus('Enter a valid PAN in format ABCDE1234F.', 'err');
@@ -70,29 +142,30 @@ panForm?.addEventListener('submit', async function(event) {
       body: JSON.stringify({ pan: pan })
     });
 
-    const data = await response.json();
-    resultEl.textContent = JSON.stringify(data, null, 2);
+    const data = await parseJsonSafe(response);
+    showResult(data);
 
     if (!response.ok) {
-      setStatus(data.error || 'Verification failed.', 'err');
+      setStatus(extractErrorMessage(data, 'Verification failed.'), 'err');
       return;
     }
 
     setStatus('PAN verification request completed.', 'ok');
   } catch (error) {
     setStatus('Unable to reach verification API.', 'err');
-    resultEl.textContent = error && error.message ? error.message : 'Unexpected error';
+    showResult(error && error.message ? error.message : 'Unexpected error');
   }
 });
 
 drivingLicenceForm?.addEventListener('submit', async function(event) {
   event.preventDefault();
+  clearIpAllowlistNotice();
 
   const licenceNumber = normalizeLicenceNumber(licenceNumberInput.value);
   const dob = (dobInput.value || '').trim();
 
   licenceNumberInput.value = licenceNumber;
-  resultEl.textContent = '';
+  showResult('');
 
   if (!licenceNumber) {
     setStatus('Enter a valid licence number.', 'err');
@@ -118,23 +191,25 @@ drivingLicenceForm?.addEventListener('submit', async function(event) {
       })
     });
 
-    const data = await response.json();
-    resultEl.textContent = JSON.stringify(data, null, 2);
+    const data = await parseJsonSafe(response);
+    showResult(data);
 
     if (!response.ok) {
-      setStatus(data.error || 'Verification failed.', 'err');
+      showIpAllowlistNotice(data);
+      setStatus(extractErrorMessage(data, 'Verification failed.'), 'err');
       return;
     }
 
     setStatus('Driving licence verification request completed.', 'ok');
   } catch (error) {
     setStatus('Unable to reach verification API.', 'err');
-    resultEl.textContent = error && error.message ? error.message : 'Unexpected error';
+    showResult(error && error.message ? error.message : 'Unexpected error');
   }
 });
 
 faceMatchForm?.addEventListener('submit', async function(event) {
   event.preventDefault();
+  clearIpAllowlistNotice();
 
   if (!image1Input?.files?.length || !image2Input?.files?.length) {
     setStatus('Select both images to continue.', 'err');
@@ -144,7 +219,7 @@ faceMatchForm?.addEventListener('submit', async function(event) {
   const payload = new FormData();
   payload.append('image1', image1Input.files[0]);
   payload.append('image2', image2Input.files[0]);
-  resultEl.textContent = '';
+  showResult('');
   setStatus('Verifying face match...', 'info');
 
   try {
@@ -162,16 +237,16 @@ faceMatchForm?.addEventListener('submit', async function(event) {
       data = { raw: raw };
     }
 
-    resultEl.textContent = JSON.stringify(data, null, 2);
+    showResult(data);
 
     if (!response.ok) {
-      setStatus((data && data.error) || 'Face match verification failed.', 'err');
+      setStatus(extractErrorMessage(data, 'Face match verification failed.'), 'err');
       return;
     }
 
     setStatus('Face match verification request completed.', 'ok');
   } catch (error) {
     setStatus('Unable to reach verification API.', 'err');
-    resultEl.textContent = error && error.message ? error.message : 'Unexpected error';
+    showResult(error && error.message ? error.message : 'Unexpected error');
   }
 });
