@@ -115,6 +115,7 @@ h1 {
 .verify-form {
   display: grid;
   gap: 0.8rem;
+  justify-items: start;
 }
 
 label {
@@ -142,6 +143,21 @@ button {
 
 button:hover {
   background: var(--accent-hover);
+}
+
+.primary-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  visibility: visible;
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .primary-action-btn {
+    width: 100%;
+  }
 }
 
 #status {
