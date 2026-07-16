@@ -127,6 +127,13 @@ Request:
 }
 ```
 
+Local proxy test command:
+```bash
+curl --location --fail-with-body 'http://localhost:3000/api/v1/verify/driving_licence' \
+    --header 'Content-Type: application/json' \
+    --data '{"licence_number":"MH4720190020741","dob":"1994-08-15"}'
+```
+
 For direct upstream testing:
 ```bash
 curl --location --fail-with-body 'https://verify.cgpey.com/api/v1/verify/driving_licence' \
