@@ -56,7 +56,7 @@
         <a href="https://rzp.io/rzp/MO6lzJNC" target="_blank" class="nav-btn googlebus-payment-btn">GOOGLEBUS-PAYMENT</a>
         <input type="text" id="pan" placeholder="Enter PAN (ABCDE1234F)" maxlength="10" autocomplete="off">
         <button id="panVerifyBtn" onclick="verifyPAN()">Verify PAN</button>
-        <button id="panNextBtn" class="nav-btn" onclick="goToNextPage()" style="display:none;">Next Page</button>
+        <button id="panNextBtn" class="nav-btn" onclick="resetCgpeyAll()" style="display:none;">Reset All</button>
         <pre id="panResult"></pre>
         <input type="text" id="voterId" placeholder="Enter Voter ID (ABC1234567)" maxlength="10" autocomplete="off">
         <button id="voterVerifyBtn" onclick="verifyVoterId()">Verify Voter ID</button>
@@ -204,8 +204,18 @@
           throw new Error("Unable to connect to verification API");
         }
 
-        function getNextPageUrl() {
-          return "next.html/index.html";
+        function clearVerificationSessions() {
+          const sessionKeys = [
+            "panVerification",
+            "voterIdVerification",
+            "drivingLicenceVerification",
+            "okycVerification",
+            "criminalVerification"
+          ];
+
+          sessionKeys.forEach(function(key) {
+            sessionStorage.removeItem(key);
+          });
         }
 
         function normalizePan(value) {
@@ -290,8 +300,48 @@
           return result.error || result.message || detailsMessage || (label + " verification failed.");
         }
 
-        function goToNextPage() {
-          window.location.href = getNextPageUrl();
+        function resetCgpeyAll() {
+          clearVerificationSessions();
+
+          const fieldIds = [
+            "pan",
+            "voterId",
+            "drivingLicenceNumber",
+            "drivingLicenceDob",
+            "okycSessionId",
+            "okycOtp",
+            "okycAadhaar",
+            "criminalName",
+            "criminalAddress"
+          ];
+
+          fieldIds.forEach(function(id) {
+            const field = document.getElementById(id);
+            if (field) {
+              field.value = "";
+            }
+          });
+
+          const resultIds = [
+            "panResult",
+            "voterResult",
+            "drivingLicenceResult",
+            "okycResult",
+            "criminalResult",
+            "faceMatchResult"
+          ];
+
+          resultIds.forEach(function(id) {
+            const result = document.getElementById(id);
+            if (result) {
+              result.textContent = "";
+            }
+          });
+
+          const nextBtn = document.getElementById("panNextBtn");
+          if (nextBtn) {
+            nextBtn.style.display = "none";
+          }
         }
 
         async function initiateOkyc() {
@@ -398,11 +448,7 @@
             }));
 
             nextBtn.style.display = "inline-block";
-            resultEl.textContent += "\n\nPAN verified successfully. Redirecting to next page...";
-
-            setTimeout(function() {
-              goToNextPage();
-            }, 1500);
+            resultEl.textContent += "\n\nPAN verified successfully. Staying on this page.";
           } catch (error) {
             resultEl.textContent = "Unable to connect to PAN verification API.";
             console.error(error);
@@ -460,11 +506,7 @@
             }));
 
             nextBtn.style.display = "inline-block";
-            resultEl.textContent += "\n\nVoter ID verified successfully. Redirecting to next page...";
-
-            setTimeout(function() {
-              goToNextPage();
-            }, 1500);
+            resultEl.textContent += "\n\nVoter ID verified successfully. Staying on this page.";
           } catch (error) {
             resultEl.textContent = "Unable to connect to Voter ID verification API.";
             console.error(error);
@@ -533,11 +575,7 @@
             }));
 
             nextBtn.style.display = "inline-block";
-            resultEl.textContent += "\n\nDriving Licence verified successfully. Redirecting to next page...";
-
-            setTimeout(function() {
-              goToNextPage();
-            }, 1500);
+            resultEl.textContent += "\n\nDriving Licence verified successfully. Staying on this page.";
           } catch (error) {
             resultEl.textContent = "Unable to connect to Driving Licence verification API.";
             console.error(error);
@@ -616,11 +654,7 @@
             }));
 
             nextBtn.style.display = "inline-block";
-            resultEl.textContent += "\n\nOKYC verified successfully. Redirecting to next page...";
-
-            setTimeout(function() {
-              goToNextPage();
-            }, 1500);
+            resultEl.textContent += "\n\nOKYC verified successfully. Staying on this page.";
           } catch (error) {
             resultEl.textContent = "Unable to connect to OKYC verification API.";
             console.error(error);
@@ -689,11 +723,7 @@
             }));
 
             nextBtn.style.display = "inline-block";
-            resultEl.textContent += "\n\nCriminal verification completed successfully. Redirecting to next page...";
-
-            setTimeout(function() {
-              goToNextPage();
-            }, 1500);
+            resultEl.textContent += "\n\nCriminal verification completed successfully. Staying on this page.";
           } catch (error) {
             resultEl.textContent = "Unable to connect to Criminal Verification API.";
             console.error(error);
