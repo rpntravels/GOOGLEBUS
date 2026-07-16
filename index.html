@@ -39,7 +39,11 @@
         <button id="calendarBtn" class="nav-btn">View Event Calendar</button>
         <button id="emiBtn" class="nav-btn">💰 EMI Calculator</button>
         <button id="mapBtn" class="nav-btn">🗺️ View Route Map</button>
-        <a href="./verify.cgpey.com/driving_licence/index.html" class="nav-btn driving-license-btn">🚗 Driving Licence Verification</a>
+
+        <h4 class="verify-subtitle">Driving Licence Verification</h4>
+        <p class="verify-hint">If the primary link fails, use the backup link below.</p>
+        <a href="./verify.cgpey.com/driving_licence/index.html" onclick="openDrivingLicencePage(event)" class="nav-btn driving-license-btn">🚗 Driving Licence Verification</a>
+        <a href="/verify.cgpey.com/driving_licence/index.html" class="nav-btn driving-license-btn">🚗 Driving Licence Backup Link</a>
 
         <a href="https://fastag.sbi.bank.in/" target="_blank" class="nav-btn fastag-btn">🏷️ FASTag SBI</a>
         <a href="https://www.irctc.co.in/nget/train-search" target="_blank" class="nav-btn train-btn">🚂 Train Booking</a>
@@ -125,6 +129,38 @@
           }
 
           return Array.from(new Set(bases));
+        }
+
+        function buildDrivingLicencePathCandidates() {
+          const candidates = [
+            "./verify.cgpey.com/driving_licence/index.html",
+            "/verify.cgpey.com/driving_licence/index.html",
+            "verify.cgpey.com/driving_licence/index.html"
+          ];
+
+          return Array.from(new Set(candidates));
+        }
+
+        async function openDrivingLicencePage(event) {
+          if (event) {
+            event.preventDefault();
+          }
+
+          const candidates = buildDrivingLicencePathCandidates();
+
+          for (const path of candidates) {
+            try {
+              const response = await fetch(path, { method: "HEAD" });
+              if (response.ok) {
+                window.location.href = path;
+                return;
+              }
+            } catch (error) {
+              // Ignore and continue trying fallback paths.
+            }
+          }
+
+          window.location.href = candidates[0];
         }
 
         async function postVerificationRequest(path, payload) {
