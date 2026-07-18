@@ -152,6 +152,11 @@ button:hover {
   min-height: 44px;
   visibility: visible;
   opacity: 1;
+  background: #3b82f6;
+}
+
+.primary-action-btn:hover {
+  background: #1d4ed8;
 }
 
 @media (max-width: 640px) {
