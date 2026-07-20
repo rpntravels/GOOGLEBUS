@@ -187,6 +187,30 @@ body {
     box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 
+/* Date Picker Dropdowns for Driving Licence */
+#drivingLicenceDobDay,
+#drivingLicenceDobMonth,
+#drivingLicenceDobYear {
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+#drivingLicenceDobDay:focus,
+#drivingLicenceDobMonth:focus,
+#drivingLicenceDobYear:focus {
+    outline: none;
+    border-color: #059669 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+#drivingLicenceDobDay:hover,
+#drivingLicenceDobMonth:hover,
+#drivingLicenceDobYear:hover {
+    border-color: #059669;
+}
+
 #criminalAddress {
     resize: vertical;
     min-height: 88px;

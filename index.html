@@ -69,10 +69,72 @@
         <h4 class="verify-subtitle" style="color: #059669; font-weight: bold; font-size: 22px; margin-top: 30px;">🚗 Quick Driving Licence Verification</h4>
         <p class="verify-hint" style="color: #047857;">Enter your licence details below for instant verification</p>
         <input type="text" id="drivingLicenceNumber" placeholder="Enter Driving Licence Number" autocomplete="off">
-        <label for="drivingLicenceDob" class="verify-label" style="color: #047857; font-size: 14px; margin-top: 10px;">Date of Birth (YYYY-MM-DD format)</label>
-        <input type="text" id="drivingLicenceDob" placeholder="YYYY-MM-DD" pattern="\d{4}-\d{2}-\d{2}" title="Enter date in YYYY-MM-DD format (e.g., 1990-01-15)" autocomplete="off">
+        <label for="drivingLicenceDobYear" class="verify-label" style="color: #047857; font-size: 14px; margin-top: 10px;">Date of Birth</label>
+        <div style="display: flex; gap: 10px; width: min(560px, 100%); margin: 8px auto;">
+          <select id="drivingLicenceDobDay" style="flex: 1; padding: 12px; border: 2px solid #10b981; border-radius: 10px; font-size: 16px; font-weight: 500;">
+            <option value="">Day</option>
+          </select>
+          <select id="drivingLicenceDobMonth" style="flex: 1; padding: 12px; border: 2px solid #10b981; border-radius: 10px; font-size: 16px; font-weight: 500;">
+            <option value="">Month</option>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+          <select id="drivingLicenceDobYear" style="flex: 1; padding: 12px; border: 2px solid #10b981; border-radius: 10px; font-size: 16px; font-weight: 500;">
+            <option value="">Year</option>
+          </select>
+        </div>
+        <input type="hidden" id="drivingLicenceDob">
         <button id="drivingLicenceVerifyBtn" onclick="verifyDrivingLicence()">🚗 Verify Driving Licence</button>
         <pre id="drivingLicenceResult"></pre>
+        <script>
+          // Populate Day dropdown (1-31)
+          (function() {
+            var daySelect = document.getElementById('drivingLicenceDobDay');
+            for (var i = 1; i <= 31; i++) {
+              var option = document.createElement('option');
+              option.value = i < 10 ? '0' + i : '' + i;
+              option.textContent = i;
+              daySelect.appendChild(option);
+            }
+            
+            // Populate Year dropdown (1940-2010)
+            var yearSelect = document.getElementById('drivingLicenceDobYear');
+            var currentYear = new Date().getFullYear();
+            for (var y = currentYear - 16; y >= 1940; y--) {
+              var option = document.createElement('option');
+              option.value = '' + y;
+              option.textContent = y;
+              yearSelect.appendChild(option);
+            }
+            
+            // Update hidden field when date changes
+            function updateDobField() {
+              var day = document.getElementById('drivingLicenceDobDay').value;
+              var month = document.getElementById('drivingLicenceDobMonth').value;
+              var year = document.getElementById('drivingLicenceDobYear').value;
+              
+              if (day && month && year) {
+                document.getElementById('drivingLicenceDob').value = year + '-' + month + '-' + day;
+              } else {
+                document.getElementById('drivingLicenceDob').value = '';
+              }
+            }
+            
+            document.getElementById('drivingLicenceDobDay').addEventListener('change', updateDobField);
+            document.getElementById('drivingLicenceDobMonth').addEventListener('change', updateDobField);
+            document.getElementById('drivingLicenceDobYear').addEventListener('change', updateDobField);
+          })();
+        </script>
         <input type="text" id="okycSessionId" placeholder="Enter OKYC Session ID" autocomplete="off">
         <input type="text" id="okycOtp" placeholder="Enter OTP" maxlength="6" autocomplete="off">
         <input type="text" id="okycAadhaar" placeholder="Enter Aadhaar Number" maxlength="12" autocomplete="off">
