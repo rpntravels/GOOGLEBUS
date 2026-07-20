@@ -70,7 +70,7 @@
         <p class="verify-hint" style="color: #047857;">Enter your licence details below for instant verification</p>
         <input type="text" id="drivingLicenceNumber" placeholder="Enter Driving Licence Number" autocomplete="off">
         <label for="drivingLicenceDob" class="verify-label" style="color: #047857; font-size: 14px; margin-top: 10px;">Date of Birth (YYYY-MM-DD format)</label>
-        <input type="date" id="drivingLicenceDob" placeholder="Date of Birth: YYYY-MM-DD" title="Enter date in YYYY-MM-DD format" autocomplete="off">
+        <input type="text" id="drivingLicenceDob" placeholder="YYYY-MM-DD" pattern="\d{4}-\d{2}-\d{2}" title="Enter date in YYYY-MM-DD format (e.g., 1990-01-15)" autocomplete="off">
         <button id="drivingLicenceVerifyBtn" onclick="verifyDrivingLicence()">🚗 Verify Driving Licence</button>
         <pre id="drivingLicenceResult"></pre>
         <input type="text" id="okycSessionId" placeholder="Enter OKYC Session ID" autocomplete="off">
