@@ -199,6 +199,15 @@ body {
     transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
+/* Enhanced Driving Licence Verify Button */
+#drivingLicenceVerifyBtn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    font-size: 16px;
+    padding: 13px 24px;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
 #panVerifyBtn:hover,
 #voterVerifyBtn:hover,
 #drivingLicenceVerifyBtn:hover,
@@ -209,6 +218,13 @@ body {
     background: #1557b0;
     transform: translateY(-1px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+/* Enhanced Driving Licence Verify Button Hover */
+#drivingLicenceVerifyBtn:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
 }
 
 #panVerifyBtn:disabled,
@@ -300,18 +316,6 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.driving-license-btn {
-    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-    color: white;
-    text-decoration: none;
-}
-
-.driving-license-btn:hover {
-    background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
-}
-
 .fastag-btn {
     background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
     color: white;
@@ -322,6 +326,34 @@ body {
     background: linear-gradient(135deg, #0d47a1 0%, #1a73e8 100%);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(26, 115, 232, 0.4);
+}
+
+/* Driving License Button - Enhanced Styling */
+.driving-license-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: white !important;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 18px !important;
+    padding: 18px 35px !important;
+    border: 3px solid #047857;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    animation: pulse 2s infinite;
+}
+
+.driving-license-btn:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+    50% {
+        box-shadow: 0 6px 30px rgba(16, 185, 129, 0.7);
+    }
 }
 .GOOGLEBUS-PAYMENT-btn {
     background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
