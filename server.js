@@ -292,6 +292,15 @@ function handlePanVerification(req, res) {
     });
 }
 
+function isValidDobFormat(value) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) {
+        return false;
+    }
+
+    var parsed = new Date(value + 'T00:00:00');
+    return !isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
 function handleDrivingLicenceVerification(req, res) {
     logIncomingVerificationRequest('DRIVING_LICENCE', req);
 
@@ -312,6 +321,10 @@ function handleDrivingLicenceVerification(req, res) {
 
     if (!licenceNumber || !dob) {
         return res.status(400).json({ success: false, error: 'licence_number and dob are required' });
+    }
+
+    if (!isValidDobFormat(dob)) {
+        return res.status(400).json({ success: false, error: 'dob must be in YYYY-MM-DD format' });
     }
 
     if (!isIpAllowed(req)) {
